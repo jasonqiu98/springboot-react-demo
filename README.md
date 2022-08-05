@@ -99,5 +99,12 @@ Make sure to get the dependencies as indicated in the file `pom.xml`.
 
 ## II. React Frontend
 
-
+1. Use `npx create-react-app frontend` to create a new React project. Enter the frontend project folder by `cd frontend`.
+2. Install the dependencies
+   - `npm install react-router-dom@6 --save`
+   - `npm install @mui/material @emotion/react @emotion/styled`
+   - `npm install @mui/icons-material`
+3. Other issues
+   - Use nested routes and `<Outlet />` tag to create children routes.
+   - In MUI, use `sx={{ textTransform: 'none' }}` to remove capitalization of Button
 
