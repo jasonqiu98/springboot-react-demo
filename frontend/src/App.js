@@ -10,11 +10,11 @@ import MenuIcon from '@mui/icons-material/Menu'
 
 const drawerWidth = 240
 
-const navItems = ["Home", "Clients"]
+const navItems = ["Clients", "About"]
 
 const routerMap = {
-  "Home": "/",
-  "Clients": "/clients"
+  "Clients": "/clients",
+  "About": "/about"
 }
 
 const App = (props) => {
@@ -47,7 +47,7 @@ const App = (props) => {
   const container = window !== undefined ? () => window().document.body : undefined
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
       <AppBar component="nav">
         <Toolbar>
           <IconButton color="inherit" aria-label="open drawer" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2, display: { sm: 'none' } }}>
@@ -66,7 +66,7 @@ const App = (props) => {
           </Typography> */}
           <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
             {navItems.map((item) => (
-              <Button key={item} sx={{ color: '#fff' }} onClick={() => navigate(routerMap[item])}>
+              <Button key={item} sx={{ color: '#fff' }} onClick={() => navigate(routerMap.hasOwnProperty(item) ? routerMap[item] : "*")}>
                 {item}
               </Button>
             ))}
@@ -89,10 +89,7 @@ const App = (props) => {
           {drawer}
         </Drawer>
       </Box>
-      <Box component="main" sx={{ p: 3 }}>
-        <Toolbar />
-        <Outlet />
-      </Box>
+      <Outlet />
     </Box>
   )
 }

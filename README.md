@@ -104,7 +104,15 @@ Make sure to get the dependencies as indicated in the file `pom.xml`.
    - `npm install react-router-dom@6 --save`
    - `npm install @mui/material @emotion/react @emotion/styled`
    - `npm install @mui/icons-material`
+   - `npm install prop-types --save`
 3. Other issues
    - Use nested routes and `<Outlet />` tag to create children routes.
    - In MUI, use `sx={{ textTransform: 'none' }}` to remove capitalization of Button
+   - Make sure the keys of the iterated components are unique.
+   - Use `disableGutters` to remove the padding of the Toolbar component in MUI
+   - `&nbsp;` and `&emsp;`
+   - Pass arguments to `TablePaginationActions`
+     - `ActionsComponent={(subProps) => <TablePaginationActions {...subProps} editMode={editMode} />}`
+
+
 
