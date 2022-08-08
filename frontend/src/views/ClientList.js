@@ -13,10 +13,12 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 
-import { Button, Input, TableFooter, TablePagination, Toolbar, Typography } from '@mui/material'
+import { Button, createTheme, Input, MenuItem, TableFooter, TablePagination, TextField, Toolbar, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 
 import TablePaginationActions from '../utils/TablePaginationActions'
+import { ThemeProvider } from '@emotion/react'
+import DeleteDraggableDialog from '../utils/DeleteDraggableDialog'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -38,25 +40,56 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }))
 
-const createData = (id, name, email) => {
-  return { id, name, email }
+const createData = (id, firstName, lastName, email, gender) => {
+  return { id, firstName, lastName, email, gender }
 }
 
+/**
+ * Generated mock data from https://www.mockaroo.com/
+ */
+
 const rows = [
-  createData(1, 'Alan', 'alanclarkson@hello.com'),
-  createData(2, 'Alann', 'alanclarkson@hello.com'),
-  createData(3, 'Alannn', 'alanclarkson@hello.com'),
-  createData(4, 'Alannnn', 'alanclarkson@hello.com'),
-  createData(5, 'Alannnnn', 'alanclarkson@hello.com'),
-  createData(6, 'Alannnnnn', 'alanclarkson@hello.com'),
-  createData(7, 'Albn', 'alanclarkson@hello.com'),
-  createData(8, 'Albnn', 'alanclarkson@hello.com'),
-  createData(9, 'Albnnn', 'alanclarkson@hello.com'),
-  createData(10, 'Albnnnn', 'alanclarkson@hello.com'),
-  createData(11, 'Albnnnnn', 'alanclarkson@hello.com'),
-  createData(12, 'Albnnnnnn', 'alanclarkson@hello.com'),
+  createData(1, 'Clyde', 'Burris', 'cburris0@mapquest.com', 'M'),
+  createData(2, 'Aline', 'Abela', 'aabela1@php.net', 'F'),
+  createData(3, 'Deina', 'Potte', 'dpotte2@flickr.com', 'F'),
+  createData(4, 'Malia', 'McGreil', 'mmcgreil3@hibu.com', 'F'),
+  createData(5, 'Terence', 'Crampin', 'tcrampin4@tripod.com', 'M'),
+  createData(6, 'Karissa', 'MacElane', 'kmacelane5@guardian.co.uk', 'F'),
+  createData(7, 'Margi', 'Newby', 'mnewby6@harvard.edu', 'O'),
+  createData(8, 'Dom', 'Sinclair', 'dsinclair7@g.co', 'M'),
+  createData(9, 'Gordie', 'Sperling', 'gsperling8@biblegateway.com', 'M'),
+  createData(10, 'Elysha', 'Shillum', 'eshillum9@prweb.com', 'F'),
+  createData(11, 'Benton', 'Slator', 'bslatora@so-net.ne.jp', 'M'),
+  createData(12, 'Clare', 'Rigts', 'crigtsb@elpais.com', 'M'),
+  createData(13, 'Winnie', 'Ramsdell', 'wramsdellc@bloomberg.com', 'F'),
+  createData(14, 'Dionne', 'Lomasna', 'dlomasnad@posterous.com', 'O'),
+  createData(15, 'Adorne', 'Goundrill', 'agoundrille@nih.gov', 'F'),
+  createData(16, 'Cesare', 'MacAnespie', 'cmacanespief@nasa.gov', 'M'),
+  createData(17, 'Leodora', 'Thatcham', 'lthatchamg@prnewswire.com', 'F'),
+  createData(18, 'Ahmad', 'Simmings', 'asimmingsh@is.gd', 'M'),
+  createData(19, 'Cchaddie', 'Twigley', 'ctwigleyi@about.com', 'M'),
+  createData(20, 'Jacquelyn', 'Robbey', 'jrobbeyj@wikispaces.com', 'O'),
 ]
 
+/**
+ * A gender map that defines the available choices in the system
+ */
+const genderMap = {
+  'M': 'Male',
+  'F': 'Female',
+  'O': 'Others',
+}
+
+/**
+ * gender options from the gender map for the select text field to use
+ */
+const genderOptions = Object.entries(genderMap).map((item) => ({ "value": item[0], "label": item[1] }))
+
+/**
+ * the table header
+ * @param {Array[String]} colNames column names for the table header 
+ * @returns 
+ */
 const DataTableHead = ({ colNames }) => (
   <TableHead>
     <TableRow>
@@ -65,26 +98,38 @@ const DataTableHead = ({ colNames }) => (
   </TableHead>
 )
 
+/**
+ * A data row in the display mode
+ */
 const DataTableRowDisplay = ({ row, onEdit, onDelete }) => (
   <StyledTableRow>
-    <StyledTableCell component="th" scope="row">{row.name}</StyledTableCell>
+    <StyledTableCell component="th" scope="row">{row.firstName}</StyledTableCell>
+    <StyledTableCell>{row.lastName}</StyledTableCell>
     <StyledTableCell>{row.email}</StyledTableCell>
+    <StyledTableCell>{genderMap[row.gender]}</StyledTableCell>
     <StyledTableCell sx={{ display: 'flex' }}>
       <Button size="small" variant="outlined" onClick={onEdit}>EDIT</Button>
       &emsp;
-      <Button size="small" variant="outlined" color="error" onClick={onDelete}>DELETE</Button>
+      <DeleteDraggableDialog onDelete={onDelete} {...row} />
     </StyledTableCell>
   </StyledTableRow>
 )
 
-const ButtonCellEdit = ({ onSubmit, onCancel }) => (
+/**
+ * A pair of buttons "submit" and "edit" in the add and edit modes
+ */
+const ButtonCellEdit = ({ disabledSubmit, onSubmit, onCancel }) => (
   <StyledTableCell sx={{ display: 'flex' }}>
-    <Button size="small" variant="outlined" onClick={onSubmit}>SUBMIT</Button>
+    <Button size="small" variant="outlined" disabled={disabledSubmit} onClick={(event) => onSubmit(event)}>SUBMIT</Button>
     &emsp;
     <Button size="small" variant="outlined" onClick={onCancel}>CANCEL</Button>
   </StyledTableCell>
 )
 
+/**
+ * In the edit mode, all other buttons in the display mode are disabled
+ * to avoid operations of multiple rows
+ */
 const ButtonCellDisabled = () => (
   <StyledTableCell sx={{ display: 'flex' }}>
     <Button size="small" variant="outlined" disabled>EDIT</Button>
@@ -93,17 +138,36 @@ const ButtonCellDisabled = () => (
   </StyledTableCell>
 )
 
+/**
+ * The form embedded within the table in the edit mode 
+ */
 const DataTableRowInEditMode = (props) => {
-  const { row, index, indexInEditMode, nameInEditMode, setNameInEditMode, emailInEditMode, setEmailInEditMode, onSubmit, onCancel } = props
+  const { row, index, indexInEditMode,
+    firstNameInEditMode, setFirstNameInEditMode,
+    lastNameInEditMode, setLastNameInEditMode,
+    emailInEditMode, setEmailInEditMode,
+    genderInEditMode, setGenderInEditMode,
+    onSubmit, onCancel } = props
   return (
     index === indexInEditMode
       ? (<StyledTableRow>
         <StyledTableCell component="th" scope="row">
           <Input
-            id="name-edit-mode"
+            id="first-name-edit-mode"
             inputProps={{ style: { fontSize: 14 } }}
-            value={nameInEditMode}
-            onChange={(event) => setNameInEditMode(event.target.value)}
+            value={firstNameInEditMode}
+            // to avoid null input
+            error={firstNameInEditMode === ''}
+            onChange={(event) => setFirstNameInEditMode(event.target.value)}
+          />
+        </StyledTableCell>
+        <StyledTableCell>
+          <Input
+            id="last-name-edit-mode"
+            inputProps={{ style: { fontSize: 14 } }}
+            value={lastNameInEditMode}
+            error={lastNameInEditMode === ''}
+            onChange={(event) => setLastNameInEditMode(event.target.value)}
           />
         </StyledTableCell>
         <StyledTableCell>
@@ -111,30 +175,78 @@ const DataTableRowInEditMode = (props) => {
             id="email-edit-mode"
             inputProps={{ style: { fontSize: 14 } }}
             value={emailInEditMode}
+            error={emailInEditMode === ''}
             onChange={(event) => setEmailInEditMode(event.target.value)}
           />
         </StyledTableCell>
-        <ButtonCellEdit onSubmit={onSubmit} onCancel={onCancel} />
+        <StyledTableCell>
+          <TextField
+            id="gender-edit-mode"
+            select
+            value={genderInEditMode}
+            error={genderInEditMode === ''}
+            onChange={(event) => setGenderInEditMode(event.target.value)}
+            variant="standard"
+            size="small"
+          >
+            {genderOptions.map((option) => (
+              <MenuItem key={option.value} value={option.value}>
+                <ThemeProvider theme={createTheme({ typography: { fontSize: 12 } })}>
+                  <Typography>{option.label}</Typography>
+                </ThemeProvider>
+              </MenuItem>
+            ))}
+          </TextField>
+        </StyledTableCell>
+        <ButtonCellEdit
+          // to avoid null input 
+          disabledSubmit={
+            firstNameInEditMode === '' || 
+            lastNameInEditMode === '' || 
+            emailInEditMode === '' || 
+            genderInEditMode === ''
+          }
+          onSubmit={onSubmit}
+          onCancel={onCancel}
+        />
       </StyledTableRow>)
       : (<StyledTableRow>
-        <StyledTableCell component="th" scope="row">{row.name}</StyledTableCell>
+        <StyledTableCell component="th" scope="row">{row.firstName}</StyledTableCell>
+        <StyledTableCell>{row.lastName}</StyledTableCell>
         <StyledTableCell>{row.email}</StyledTableCell>
+        <StyledTableCell>{genderMap[row.gender]}</StyledTableCell>
         <ButtonCellDisabled />
       </StyledTableRow>)
   )
 }
 
+/**
+ * The form embedded within the table in the add mode 
+ */
 const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
-  const [name, setName] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
+  const [gender, setGender] = useState("")
   return (
     <StyledTableRow>
       <StyledTableCell component="th" scope="row">
         <Input
-          id="name-add-mode"
+          id="first-name-add-mode"
           inputProps={{ style: { fontSize: 14 } }}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
+          value={firstName}
+          // to avoid null input
+          error={firstName === ''}
+          onChange={(event) => setFirstName(event.target.value)}
+        />
+      </StyledTableCell>
+      <StyledTableCell>
+        <Input
+          id="last-name-add-mode"
+          inputProps={{ style: { fontSize: 14 } }}
+          value={lastName}
+          error={lastName === ''}
+          onChange={(event) => setLastName(event.target.value)}
         />
       </StyledTableCell>
       <StyledTableCell>
@@ -142,14 +254,47 @@ const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
           id="email-add-mode"
           inputProps={{ style: { fontSize: 14 } }}
           value={email}
+          error={email === ''}
           onChange={(event) => setEmail(event.target.value)}
         />
       </StyledTableCell>
-      <ButtonCellEdit onSubmit={() => onSubmit(name, email)} onCancel={onCancel} />
+      <StyledTableCell>
+        <TextField
+          id="gender-add-mode"
+          select
+          value={gender}
+          error={gender === ''}
+          onChange={(event) => setGender(event.target.value)}
+          variant="standard"
+          size="small"
+        >
+          {genderOptions.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              <ThemeProvider theme={createTheme({ typography: { fontSize: 12 } })}>
+                <Typography>{option.label}</Typography>
+              </ThemeProvider>
+            </MenuItem>
+          ))}
+        </TextField>
+      </StyledTableCell>
+      <ButtonCellEdit
+        // to avoid null input
+        disabledSubmit={
+          firstName === '' || 
+          lastName === '' || 
+          email === '' || 
+          gender === ''
+        }
+        onSubmit={() => onSubmit(firstName, lastName, email, gender)}
+        onCancel={onCancel}
+      />
     </StyledTableRow>
   )
 }
 
+/**
+ * The pagination footer, borrowed from MUI
+ */
 const PaginationFooter = ({ editMode, dataRows, rowsPerPage, page, handleChangePage, handleChangeRowsPerPage }) => (
   <TableFooter>
     <TableRow>
@@ -167,12 +312,18 @@ const PaginationFooter = ({ editMode, dataRows, rowsPerPage, page, handleChangeP
         }}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        // page changes are prohibited in the edit mode
         ActionsComponent={(subProps) => <TablePaginationActions {...subProps} editMode={editMode} />}
       />
     </TableRow>
   </TableFooter>
 )
 
+/**
+ * The main component of the client list
+ * including a button of 'Add Clients'
+ * and a table to display the clients' info
+ */
 const ClientList = () => {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
@@ -180,8 +331,10 @@ const ClientList = () => {
   const [editMode, setEditMode] = useState(false)
   const [addMode, setAddMode] = useState(false)
   const [indexInEditMode, setIndexInEditMode] = useState(-1)
-  const [nameInEditMode, setNameInEditMode] = useState("")
+  const [firstNameInEditMode, setFirstNameInEditMode] = useState("")
+  const [lastNameInEditMode, setLastNameInEditMode] = useState("")
   const [emailInEditMode, setEmailInEditMode] = useState("")
+  const [genderInEditMode, setGenderInEditMode] = useState("")
   const [dataRows, setDataRows] = useState([])
 
   useEffect(() => {
@@ -204,8 +357,10 @@ const ClientList = () => {
 
   const enterEditMode = (index) => {
     setIndexInEditMode(index)
-    setNameInEditMode(dataRows[index].name)
+    setFirstNameInEditMode(dataRows[index].firstName)
+    setLastNameInEditMode(dataRows[index].lastName)
     setEmailInEditMode(dataRows[index].email)
+    setGenderInEditMode(dataRows[index].gender)
     setEditMode(true)
   }
 
@@ -214,11 +369,22 @@ const ClientList = () => {
     setEditMode(false)
   }
 
-  const submitEdit = () => {
-    dataRows[indexInEditMode].name = nameInEditMode
-    dataRows[indexInEditMode].email = emailInEditMode
+  const submitEdit = (event) => {
+    let editedDataRow = {
+      firstName: firstNameInEditMode,
+      lastName: lastNameInEditMode,
+      email: emailInEditMode,
+      gender: genderInEditMode,
+    }
+    dataRows[indexInEditMode] = editedDataRow
+    event.preventDefault()
     setDataRows(dataRows)
     exitEditMode()
+  }
+
+  const submitAddForm = (firstName, lastName, email, gender) => {
+    setDataRows([...dataRows, createData(dataRows.length + 1, firstName, lastName, email, gender)])
+    setAddMode(false)
   }
 
   const deleteRow = (localIdx, indexToDelete) => {
@@ -231,11 +397,6 @@ const ClientList = () => {
       }
     }
     setDataRows(newDataRows)
-  }
-
-  const submitAddForm = (name, email) => {
-    setDataRows([...dataRows, createData(dataRows.length + 1, name, email)])
-    setAddMode(false)
   }
 
   return (
@@ -260,11 +421,11 @@ const ClientList = () => {
         </Typography>)
         : (<TableContainer component={Paper}>
           <Table sx={{ minWidth: 700 }} aria-label="customized table">
-            <DataTableHead colNames={["Name", "Email", "Actions"]} />
+            <DataTableHead colNames={["First Name", "Last Name", "Email", "Gender", "Actions"]} />
             <TableBody>
               {addMode
                 && <DataTableRowInAddMode
-                  onSubmit={(name, email) => submitAddForm(name, email)}
+                  onSubmit={(firstName, lastName, email, gender) => submitAddForm(firstName, lastName, email, gender)}
                   onCancel={() => { setAddMode(false) }}
                 />}
               {(rowsPerPage > 0
@@ -276,10 +437,14 @@ const ClientList = () => {
                   row={row}
                   index={page * rowsPerPage + localIdx}
                   indexInEditMode={indexInEditMode}
-                  nameInEditMode={nameInEditMode}
-                  setNameInEditMode={setNameInEditMode}
+                  firstNameInEditMode={firstNameInEditMode}
+                  setFirstNameInEditMode={setFirstNameInEditMode}
+                  lastNameInEditMode={lastNameInEditMode}
+                  setLastNameInEditMode={setLastNameInEditMode}
                   emailInEditMode={emailInEditMode}
                   setEmailInEditMode={setEmailInEditMode}
+                  genderInEditMode={genderInEditMode}
+                  setGenderInEditMode={setGenderInEditMode}
                   onSubmit={submitEdit}
                   onCancel={exitEditMode}
                 />

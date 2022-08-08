@@ -105,6 +105,7 @@ Make sure to get the dependencies as indicated in the file `pom.xml`.
    - `npm install @mui/material @emotion/react @emotion/styled`
    - `npm install @mui/icons-material`
    - `npm install prop-types --save`
+   - `npm install react-draggable`
 3. Other issues
    - Use nested routes and `<Outlet />` tag to create children routes.
    - In MUI, use `sx={{ textTransform: 'none' }}` to remove capitalization of Button
