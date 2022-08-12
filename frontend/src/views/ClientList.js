@@ -139,6 +139,26 @@ const ButtonCellDisabled = () => (
 )
 
 /**
+ * input field in the edit mode
+ * @param {String} id id of the input
+ * @param {String} value value of the react hook
+ * @param {React.Dispatch<React.SetStateAction<string>>} setValue the set method of the react hook
+ * @param {Boolean} isEmail whether the input is an email address or not
+ * @returns 
+ */
+const InputInEditMode = ({ id, value, setValue, isEmail, regEmail }) => {
+  return (
+    <Input
+      id={id}
+      inputProps={{ style: { fontSize: 14 } }}
+      value={value}
+      error={value === '' || (isEmail && !regEmail.test(value))}  // to avoid null or irregular input
+      onChange={(event) => setValue(event.target.value)}
+    />
+  )
+}
+
+/**
  * The form embedded within the table in the edit mode 
  */
 const DataTableRowInEditMode = (props) => {
@@ -148,36 +168,19 @@ const DataTableRowInEditMode = (props) => {
     emailInEditMode, setEmailInEditMode,
     genderInEditMode, setGenderInEditMode,
     onSubmit, onCancel } = props
+  const regEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
+  
   return (
     index === indexInEditMode
       ? (<StyledTableRow>
         <StyledTableCell component="th" scope="row">
-          <Input
-            id="first-name-edit-mode"
-            inputProps={{ style: { fontSize: 14 } }}
-            value={firstNameInEditMode}
-            // to avoid null input
-            error={firstNameInEditMode === ''}
-            onChange={(event) => setFirstNameInEditMode(event.target.value)}
-          />
+          <InputInEditMode id="first-name-edit-mode" value={firstNameInEditMode} setValue={setFirstNameInEditMode} />
         </StyledTableCell>
         <StyledTableCell>
-          <Input
-            id="last-name-edit-mode"
-            inputProps={{ style: { fontSize: 14 } }}
-            value={lastNameInEditMode}
-            error={lastNameInEditMode === ''}
-            onChange={(event) => setLastNameInEditMode(event.target.value)}
-          />
+          <InputInEditMode id="last-name-edit-mode" value={lastNameInEditMode} setValue={setLastNameInEditMode} />
         </StyledTableCell>
         <StyledTableCell>
-          <Input
-            id="email-edit-mode"
-            inputProps={{ style: { fontSize: 14 } }}
-            value={emailInEditMode}
-            error={emailInEditMode === ''}
-            onChange={(event) => setEmailInEditMode(event.target.value)}
-          />
+          <InputInEditMode id="email-edit-mode" value={emailInEditMode} setValue={setEmailInEditMode} isEmail={true} regEmail={regEmail} />
         </StyledTableCell>
         <StyledTableCell>
           <TextField
@@ -201,9 +204,9 @@ const DataTableRowInEditMode = (props) => {
         <ButtonCellEdit
           // to avoid null input 
           disabledSubmit={
-            firstNameInEditMode === '' || 
-            lastNameInEditMode === '' || 
-            emailInEditMode === '' || 
+            firstNameInEditMode === '' ||
+            lastNameInEditMode === '' ||
+            emailInEditMode === '' || !regEmail.test(emailInEditMode) ||
             genderInEditMode === ''
           }
           onSubmit={onSubmit}
@@ -228,35 +231,18 @@ const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [gender, setGender] = useState("")
+  const regEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
+
   return (
     <StyledTableRow>
       <StyledTableCell component="th" scope="row">
-        <Input
-          id="first-name-add-mode"
-          inputProps={{ style: { fontSize: 14 } }}
-          value={firstName}
-          // to avoid null input
-          error={firstName === ''}
-          onChange={(event) => setFirstName(event.target.value)}
-        />
+        <InputInEditMode id="first-name-add-mode" value={firstName} setValue={setFirstName} />
       </StyledTableCell>
       <StyledTableCell>
-        <Input
-          id="last-name-add-mode"
-          inputProps={{ style: { fontSize: 14 } }}
-          value={lastName}
-          error={lastName === ''}
-          onChange={(event) => setLastName(event.target.value)}
-        />
+        <InputInEditMode id="last-name-add-mode" value={lastName} setValue={setLastName} />
       </StyledTableCell>
       <StyledTableCell>
-        <Input
-          id="email-add-mode"
-          inputProps={{ style: { fontSize: 14 } }}
-          value={email}
-          error={email === ''}
-          onChange={(event) => setEmail(event.target.value)}
-        />
+        <InputInEditMode id="email-add-mode" value={email} setValue={setEmail} isEmail={true} regEmail={regEmail}/>
       </StyledTableCell>
       <StyledTableCell>
         <TextField
@@ -280,9 +266,9 @@ const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
       <ButtonCellEdit
         // to avoid null input
         disabledSubmit={
-          firstName === '' || 
-          lastName === '' || 
-          email === '' || 
+          firstName === '' ||
+          lastName === '' ||
+          email === '' || !regEmail.test(email) ||
           gender === ''
         }
         onSubmit={() => onSubmit(firstName, lastName, email, gender)}

@@ -7,14 +7,15 @@ import React, { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 import { AppBar, Box, Button, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText, Toolbar, Typography } from '@mui/material'
 import MenuIcon from '@mui/icons-material/Menu'
+import MyAccount from './utils/MyAccount'
 
 const drawerWidth = 240
 
-const navItems = ["Clients", "About"]
+const navItems = ["Home", "About"]
 
 const routerMap = {
-  "Clients": "/clients",
-  "About": "/about"
+  "Home": "/",
+  "About": "/about",
 }
 
 const App = (props) => {
@@ -71,6 +72,7 @@ const App = (props) => {
               </Button>
             ))}
           </Box>
+          <MyAccount logoutNavigation="/logout" />
         </Toolbar>
       </AppBar>
       <Box component="nav">

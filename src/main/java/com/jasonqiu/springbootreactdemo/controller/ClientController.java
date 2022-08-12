@@ -20,13 +20,16 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    @GetMapping("/name/{name}")
-    public String printClientInfo(@PathVariable("name") String clientName) {
-        Client clientInfo = clientService.getClientByName(clientName);
-        return "Hello " + clientInfo.getName() + ", your email is " + clientInfo.getEmail();
-        // // A neat but slower alternative
-        // String outputFormat = "Hello %s, your email is %s";
-        // return String.format(outputFormat, clientInfo.getName(), clientInfo.getEmail());
+    @GetMapping("/name/{firstName}/{lastName}")
+    public String printClientInfo(@PathVariable("firstName") String firstName,
+                                  @PathVariable("lastName") String lastName) {
+        Client clientInfo = clientService.getClientByName(firstName, lastName);
+        return "Hello " + clientInfo.getFirstName() + " " + clientInfo.getLastName() +
+                ", your email is " + clientInfo.getEmail();
+        // // A neat but **slower** alternative, as concat uses StringBuilder as an optimization
+        // String outputFormat = "Hello %s %s, your email is %s";
+        // return String.format(outputFormat, clientInfo.getFirstName(), clientInfo.getLastName(),
+        // clientInfo.getEmail());
     }
 
     @GetMapping
@@ -41,7 +44,7 @@ public class ClientController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createClient(@RequestBody Client client) throws URISyntaxException {
-        if (null != clientService.getClientByNameAndEmail(client.getName(), client.getEmail())) {
+        if (null != clientService.getClientByEmail(client.getEmail())) {
             return ResponseEntity.badRequest().body("The record with the same name and email already exists");
         } else {
             clientService.createClient(client);
@@ -60,7 +63,7 @@ public class ClientController {
         } else if (currentClient.equals(client)) {
             // return without any operation
             return ResponseEntity.ok(client);
-        } else if (null != clientService.getClientByNameAndEmail(client.getName(), client.getEmail())) {
+        } else if (null != clientService.getClientByEmail(client.getEmail())) {
             return ResponseEntity.badRequest().body("The record with the same name and email already exists");
         } else {
             clientService.updateClient(id, client);

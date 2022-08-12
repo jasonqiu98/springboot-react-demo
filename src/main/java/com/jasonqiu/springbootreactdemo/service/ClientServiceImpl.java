@@ -32,12 +32,12 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client getClientByName(String name) {
-        return clientRepository.findByName(name);
+    public Client getClientByName(String firstName, String lastName) {
+        return clientRepository.findByName(firstName, lastName);
     }
 
-    public Client getClientByNameAndEmail(String name, String email) {
-        return clientRepository.findByNameAndEmail(name, email);
+    public Client getClientByEmail(String email) {
+        return clientRepository.findByEmail(email);
     }
 
     @Override
