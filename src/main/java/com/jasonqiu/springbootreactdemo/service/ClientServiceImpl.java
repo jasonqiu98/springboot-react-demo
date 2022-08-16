@@ -3,8 +3,6 @@ package com.jasonqiu.springbootreactdemo.service;
 import com.jasonqiu.springbootreactdemo.entity.Client;
 import com.jasonqiu.springbootreactdemo.repository.ClientRepository;
 import org.springframework.stereotype.Service;
-import org.postgresql.util.PSQLException;
-
 import java.util.List;
 
 @Service

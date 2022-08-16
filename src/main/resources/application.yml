@@ -8,3 +8,5 @@ spring:
     url: jdbc:postgresql://localhost:5432/demo_db
     username: postgres
     password: datagrip02
+  redis:
+    password: foobared
