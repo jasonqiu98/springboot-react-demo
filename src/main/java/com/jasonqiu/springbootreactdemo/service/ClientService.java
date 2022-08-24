@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface ClientService {
 
-
     List<Client> getClients();
 
     List<Client> getClients(int offset, int limit);

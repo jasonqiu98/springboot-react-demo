@@ -1,9 +1,10 @@
-package com.jasonqiu.springbootreactdemo.config;
+package com.jasonqiu.springbootreactdemo.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -11,7 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.jasonqiu.springbootreactdemo.filter.JwtAuthenticationTokenFilter;
+import com.jasonqiu.springbootreactdemo.security.filter.JwtAuthenticationTokenFilter;
 
 /**
  * https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter
@@ -19,6 +20,7 @@ import com.jasonqiu.springbootreactdemo.filter.JwtAuthenticationTokenFilter;
  */
 
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)  // used for authorization
 public class SecurityConfig {
 
     final JwtAuthenticationTokenFilter jwtAuthenticationTokenFilter;
@@ -45,8 +47,9 @@ public class SecurityConfig {
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             .and()
             .authorizeRequests()
-            // allow anonymous access of the login service
-            .antMatchers("/login").anonymous()
+            // allow anonymous access of the register and login service
+            .antMatchers("/register/**").anonymous()
+            .antMatchers("/user/login").anonymous()
             // for all other requests, authentication is required
             .anyRequest().authenticated()
             .and()
@@ -62,6 +65,9 @@ public class SecurityConfig {
         //                       the second parameter indicates "alwaysUse"
         // successHandler() - an authenticationSuccessHandler
 
+        /**
+         * add our jwt filter before UsernamePasswordAuthenticationFilter
+         */
         http.addFilterBefore(jwtAuthenticationTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

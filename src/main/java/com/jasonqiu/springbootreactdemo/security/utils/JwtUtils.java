@@ -1,4 +1,4 @@
-package com.jasonqiu.springbootreactdemo.utils;
+package com.jasonqiu.springbootreactdemo.security.utils;
 
 import java.util.Base64;
 import java.util.Date;
@@ -16,7 +16,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 /**
  * A utility class for JWT (Json Web Token)
  * JWT: Header + Payload + Signature
- * https://zhuanlan.zhihu.com/p/395273289
+ * https://zhuanlan.zhihu.com/p/395273289 (content in Chinese)
  */
 
 @Service
@@ -119,3 +119,4 @@ public class JwtUtils {
     }
 
 }
+

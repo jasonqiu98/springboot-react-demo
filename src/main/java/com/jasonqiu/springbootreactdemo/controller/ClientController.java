@@ -2,7 +2,9 @@ package com.jasonqiu.springbootreactdemo.controller;
 
 import com.jasonqiu.springbootreactdemo.entity.Client;
 import com.jasonqiu.springbootreactdemo.service.ClientService;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -19,29 +21,26 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    @GetMapping("/name/{firstName}/{lastName}")
-    public String printClientInfo(@PathVariable("firstName") String firstName,
-                                  @PathVariable("lastName") String lastName) {
-        Client clientInfo = clientService.getClientByName(firstName, lastName);
-        return "Hello " + clientInfo.getFirstName() + " " + clientInfo.getLastName() +
-                ", your email is " + clientInfo.getEmail();
-        // // A neat but **slower** alternative, as concat uses StringBuilder as an optimization
-        // String outputFormat = "Hello %s %s, your email is %s";
-        // return String.format(outputFormat, clientInfo.getFirstName(), clientInfo.getLastName(),
-        // clientInfo.getEmail());
+    @GetMapping("/name/{firstName}")
+    @PreAuthorize("hasAuthority('client')")
+    public ResponseEntity<String> printClientInfo(@PathVariable("firstName") String firstName) {
+        return ResponseEntity.ok().body("Hello " + firstName);
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
     public List<Client> getClients() {
         return clientService.getClients();
     }
 
     @GetMapping("/id/{id}")
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
     public Client getClient(@PathVariable Long id) {
         return clientService.getClient(id);
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<?> createClient(@RequestBody Client client) throws URISyntaxException {
         if (null != clientService.getClientByEmail(client.getEmail())) {
             return ResponseEntity.badRequest().body("The record with the same name and email already exists");
@@ -54,6 +53,7 @@ public class ClientController {
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<?> updateClient(@PathVariable Long id, @RequestBody Client client) {
         client.setId(id);
         Client currentClient = clientService.getClient(id);
@@ -73,6 +73,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<String> deleteClient(@PathVariable Long id) {
         clientService.deleteClient(id);
         return ResponseEntity.ok("The record with id " + id + " is deleted");

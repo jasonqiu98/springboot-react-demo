@@ -1,4 +1,4 @@
-package com.jasonqiu.springbootreactdemo.config;
+package com.jasonqiu.springbootreactdemo.security.redis;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

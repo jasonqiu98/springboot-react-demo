@@ -1,6 +1,5 @@
 package com.jasonqiu.springbootreactdemo.repository;
 
-
 import com.jasonqiu.springbootreactdemo.entity.Client;
 import org.apache.ibatis.annotations.*;
 
@@ -32,15 +31,19 @@ public interface ClientRepository {
     @ResultMap("ClientList")
     Client findByEmail(String email);
 
-    @Insert("insert into client.client (first_name, last_name, email, gender)" +
-            "values (#{firstName}, #{lastName}, #{email}, #{gender})")
+    @Insert({
+        "insert into client.client (first_name, last_name, email, gender)",
+        "values (#{firstName}, #{lastName}, #{email}, #{gender})"
+    })
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void save(Client client);
 
-    @Update("update client.client" +
-            "set first_name = #{client.firstName}, last_name = #{client.lastName}, " +
-            "email = #{client.email}, gender = #{client.gender}" +
-            "where id = #{id}")
+    @Update({
+        "update client.client",
+        "set first_name = #{client.firstName}, last_name = #{client.lastName}, ",
+        "email = #{client.email}, gender = #{client.gender}",
+        "where id = #{id}"
+    })
     @Options(useGeneratedKeys = true, keyProperty = "client.id")
     void updateById(Long id, Client client);
 

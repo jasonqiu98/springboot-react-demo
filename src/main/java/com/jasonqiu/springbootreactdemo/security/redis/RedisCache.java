@@ -1,4 +1,4 @@
-package com.jasonqiu.springbootreactdemo.utils;
+package com.jasonqiu.springbootreactdemo.security.redis;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +23,7 @@ public class RedisCache {
      * set expiry time
      * 
      * @param key     Redis key
-     * @param timeout timeout
+     * @param timeout timeout / time to live (ttl)
      * @return true=set succeeds; false=set fails
      */
     public boolean expire(final String key, final long timeout) {
@@ -34,7 +34,7 @@ public class RedisCache {
      * set expiry time
      * 
      * @param key     Redis key
-     * @param timeout timeout
+     * @param timeout timeout / time to live (ttl)
      * @param unit    time unit
      * @return true=set succeeds; false=set fails
      */
@@ -52,6 +52,14 @@ public class RedisCache {
 
     /**
      * cache basic data types, Integer, String and entity classes etc.
+     * with key, value, timeout (with seconds as time unit)
+     */
+    public <T> void set(final String key, final T value, final Integer timeout) {
+        redisTemplate.opsForValue().set(key, value, timeout, TimeUnit.SECONDS);
+    }
+
+    /**
+     * cache basic data types, Integer, String and entity classes etc.
      * with key, value, timeout and time unit
      */
     public <T> void set(final String key, final T value, final Integer timeout, final TimeUnit timeUnit) {
@@ -62,7 +70,7 @@ public class RedisCache {
      * get cache object
      * 
      * @param key Redis key
-     * @return Redis value
+     * @return Redis value, null when key does not exist
      */
     public <T> T get(final String key) {
         ValueOperations<String, T> operation = redisTemplate.opsForValue();
