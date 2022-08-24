@@ -10,3 +10,6 @@ spring:
     password: datagrip02
   redis:
     password: foobared
+springdoc:
+  api-docs:
+    path: /api-docs

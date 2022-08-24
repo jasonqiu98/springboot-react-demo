@@ -8,6 +8,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Used as a package class to pass into Redis
+ * Including the same info as UserDetails
+ */
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
