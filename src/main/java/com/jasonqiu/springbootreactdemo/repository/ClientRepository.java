@@ -25,7 +25,7 @@ public interface ClientRepository {
 
     @Select("select * from client.client where first_name = #{firstName} and last_name = #{lastName}")
     @ResultMap("ClientList")
-    Client findByName(String firstName, String lastName);
+    List<Client> findByName(String firstName, String lastName);
 
     @Select("select * from client.client where email = #{email}")
     @ResultMap("ClientList")

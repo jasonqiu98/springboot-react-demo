@@ -14,13 +14,23 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
 import com.jasonqiu.springbootreactdemo.security.entity.UserDetailsPackage;
 import com.jasonqiu.springbootreactdemo.security.redis.RedisCache;
 import com.jasonqiu.springbootreactdemo.security.utils.JwtUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+/**
+ * Client
+ * --------------------------------------------------------------------
+ * AbstractAuthenticationProcessingFilter (Filters)
+ * AuthenticationManager
+ * AbstractUserDetailsAuthenticationProvider (Authentication Provider)
+ * UserDetailsService
+ * --------------------------------------------------------------------
+ * Database
+ */
 
 @Service
 @RequiredArgsConstructor

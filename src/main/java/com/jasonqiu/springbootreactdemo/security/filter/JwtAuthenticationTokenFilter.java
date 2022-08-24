@@ -21,20 +21,16 @@ import com.jasonqiu.springbootreactdemo.security.redis.RedisCache;
 import com.jasonqiu.springbootreactdemo.security.utils.JwtUtils;
 
 import io.jsonwebtoken.Claims;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
-    final JwtUtils jwtUtils;
-
-    final RedisCache redisCache;
-
-    public JwtAuthenticationTokenFilter(JwtUtils jwtUtils, RedisCache redisCache) {
-        this.jwtUtils = jwtUtils;
-        this.redisCache = redisCache;
-    }
+    private final JwtUtils jwtUtils;
+    private final RedisCache redisCache;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -56,11 +52,10 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
             Claims claims = jwtUtils.parseToken(token);
             String username = claims.getSubject();
             redisKey = "login:" + username;
-            log.info("redisKey: {}", redisKey);
         } catch (Exception e) {
-            e.printStackTrace();
-            // We don't need to throw RuntimeException on the method signature
-            throw new RuntimeException("invalid token");
+            log.error("invalid token");
+            filterChain.doFilter(request, response);
+            return;
         }
 
         UserDetailsPackage user;
@@ -68,14 +63,18 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
         try {
             user = redisCache.get(redisKey);
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("cannot read from redis");
+            log.error("cannot read from redis");
+            filterChain.doFilter(request, response);
+            return;
         }
 
         // if the Authentication is not found in redis
         // then throw an exception
         if (null == user) {
-            throw new RuntimeException("invalid token");
+            log.error("redisKey: {} not found in Redis", redisKey);
+            log.error("invalid token");
+            filterChain.doFilter(request, response);
+            return;
         }
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -86,7 +85,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
         // set SecurityContextHolder and pass to subsequent filters
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info("Retrieved user info of {} from Redis with authorities {}",
+        log.info("Retrieved user [{}] from Redis with authorities {}",
             authentication.getPrincipal(),
             authentication.getAuthorities()
         );

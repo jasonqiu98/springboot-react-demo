@@ -149,7 +149,7 @@ Make sure to get the dependencies as indicated in the file `pom.xml`.
 A feasible solution:
 - Login
   1. Define a new login interface that
-    - Calls the methods of `ProviderManager` for authentication, and generates jwt if authentication passes
+    - Calls the methods of `ProviderManager` for authentication (or a customized authentication provider) , and generates jwt if authentication passes
     - Stores the user information into Redis
   2. Define a new class `UserDetailsService`
     - Query the database of user login details
@@ -162,5 +162,6 @@ A feasible solution:
 
 1. Create classes including `JwtUtils.java`, `RedisConfig.java`, `RedisCache.java`, `WebUtils.java` and some entity classes including `UserInfo.java`; create sql files and corresponding databases. Here I created the table in `user_info.user` within the database `demo_db`.
 2. Implement `UserDetailsService` with `UserDetailsServiceImpl.java` (annotated with `@Service`) and make the first test. Note that the plain text passwords need to prefix with `{noop}`. This is because the default password encoder uses the format `{id}password` as the way of encoding. We should probably overwrite this password encoder with our own implementation.
-3. 
+
+
 

@@ -30,7 +30,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client getClientByName(String firstName, String lastName) {
+    public List<Client> getClientByName(String firstName, String lastName) {
         return clientRepository.findByName(firstName, lastName);
     }
 

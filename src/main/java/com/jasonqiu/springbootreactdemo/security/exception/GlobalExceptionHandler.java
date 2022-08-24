@@ -1,3 +1,8 @@
+/**
+ * borrowed from
+ * https://github.com/Yoh0xFF/java-spring-security-example/blob/master/src/main/java/io/example/configuration/GlobalExceptionHandler.java
+ */
+
 package com.jasonqiu.springbootreactdemo.security.exception;
 
 import static java.util.Optional.ofNullable;

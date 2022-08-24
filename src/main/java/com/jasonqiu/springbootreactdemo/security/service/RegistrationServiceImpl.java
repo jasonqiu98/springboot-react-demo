@@ -34,30 +34,35 @@ public class RegistrationServiceImpl implements RegistrationService {
 
         String email = registrationModel.getEmail();
 
-        if (userInfoRepository.findByEmail(email) != null) {
+        UserInfo user = userInfoRepository.findByEmail(email);
+        if (null == user) {
+            user = new UserInfo();
+
+            user.setEmail(email);
+            user.setFirstName(registrationModel.getFirstName());
+            user.setLastName(registrationModel.getLastName());
+
+            /**
+             * required attributes in UserInfo:
+             * (username, password, role, enabled)
+             */
+            user.setUsername(TokenUtils.generate());
+            user.setPassword(passwordEncoder.encode(password));
+            user.setRole(2); // client by default, role with most limited authorities
+            user.setEnabled(0); // not enabled by default
+
+            user.setCreatedAt(new Date());
+
+            log.info(user.toString());
+
+            userInfoRepository.save(user); // save to database
+        } else if (user.getEnabled() == 1 || user.getEnabled() == -1) {
             throw new RuntimeException("Account Already Exists");
         }
 
-        UserInfo user = new UserInfo();
-
-        user.setEmail(email);
-        user.setFirstName(registrationModel.getFirstName());
-        user.setLastName(registrationModel.getLastName());
-
-        /**
-         * required attributes in UserInfo:
-         * (username, password, role, enabled)
-         */
-        user.setUsername(TokenUtils.generate());
-        user.setPassword(passwordEncoder.encode(password));
-        user.setRole(2); // client by default, role with most limited authorities
-        user.setEnabled(0); // not enabled by default
-
-        user.setCreatedAt(new Date());
-
-        System.out.println(user);
-
-        userInfoRepository.save(user); // save to database
+        // if redis is down or for other reasons,
+        // record is created but user is not enabled,
+        // just select and return the user record
 
         return user;
     }
@@ -130,7 +135,7 @@ public class RegistrationServiceImpl implements RegistrationService {
             return 1; // user not found
         }
 
-        if (ret.intValue() == 0) {
+        if (ret.intValue() != 1) {
             return 2; // user disabled
         }
 

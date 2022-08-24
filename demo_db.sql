@@ -57,7 +57,7 @@ create table user_info.user
     "first_name" varchar(32) default null,
     "last_name" varchar(32) default null,
     "role" int2 not null default 1,    -- 0: admin, 1: user, 2: client
-    "enabled" int2 not null default 0, -- 0: disabled, 1: enabled
+    "enabled" int2 not null default 0, -- 0: init, 1: enabled, -1: disabled (by admin)
     "created_at" timestamp with time zone default null,
     "modified_at" timestamp with time zone default null,
     "delete_flag" int2 default 0,      -- 0: not deleted, 1: deleted
@@ -67,9 +67,12 @@ create table user_info.user
             unique (email)             -- candidate key: email
 );
 
--- insert into user_info.user ("username", "nickname", "password", "role")
---     values ('admin', 'admin', '$2a$12$DkLEN8MwZXTLVFPDHNgMfO118HPmYlURSz3BcHbE9JRrYG5VJwr2C', 0),
---            ('jasonqiu', 'jasonqiu', '$2a$12$sagAtXPRINjyVAO2KVheGuLzaSTbJ7DXl/nwMUfQxyL91ZtVfYh32', 1);
+-- (admin, helloworld)
+-- (jasonqiu, helloworld)
+
+insert into user_info.user ("username", "email", "password", "role", "enabled")
+    values ('admin', 'admin@admin.com', '$2a$12$cWMf3YAlgSRpRXOZpbM9deltDLX4iocL3Aw2ydfhaKNJP1yR20JBS', 0, 1),
+           ('jasonqiu', 'jingxuan.qiu@outlook.com', '$2a$12$Gh65O.mpRMvyPTSIbZh/duEaPUFM7vpXIznyGD8FA953NxZVq1Hzy', 1, 1);
 
 -- We can use the setup below for complex authentication management table design.
 -- In this demo we only use simple authentication management with the field

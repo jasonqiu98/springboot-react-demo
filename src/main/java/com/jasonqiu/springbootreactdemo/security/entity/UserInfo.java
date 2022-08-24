@@ -38,7 +38,7 @@ public class UserInfo implements Serializable {
     private Integer role;
 
     /**
-     * enabled or not (0 disabled, 1 enabled)
+     * enabled or not (0: init, 1: enabled, -1: disabled (by admin))
      */
     private Integer enabled;
 

@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.*;
 
 import com.jasonqiu.springbootreactdemo.security.entity.UserInfo;
 
+
 @Mapper
 public interface UserInfoRepository {
 
@@ -44,7 +45,7 @@ public interface UserInfoRepository {
     @Update("update user_info.user set enabled = 1, modified_at = now() where id = #{userId}")
     void enableUser(Long userId);
 
-    @Update("update user_info.user set enabled = 0, modified_at = now() where id = #{userId}")
+    @Update("update user_info.user set enabled = -1, modified_at = now() where id = #{userId}")
     void disableUser(Long userId);
 
     @Select("select enabled from user_info.user where id = #{userId}")
@@ -52,4 +53,19 @@ public interface UserInfoRepository {
 
     @Update("update user_info.user set password = #{newPassword}, modified_at = now() where id = #{userId}")
     void changePassword(Long userId, String newPassword);
+
+    @Select("select email from user_info.user where username = #{username}")
+    String findEmailByUsername(String username);
+
+    @Update("update user_info.user set role = #{role} where username = #{username}")
+    void changeRoleByUsername(String username, Integer role);
+
+    @Update("update user_info.user set role = #{role} where email = #{email}")
+    void changeRoleByEmail(String email, Integer role);
+
+    @Select("select id from user_info.user where username = #{username}")
+    Long findIdByUsername(String username);
+
+    @Select("select id from user_info.user where email = #{email}")
+    Long findIdByEmail(String email);
 }

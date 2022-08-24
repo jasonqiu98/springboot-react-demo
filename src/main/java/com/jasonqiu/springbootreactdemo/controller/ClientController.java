@@ -1,10 +1,15 @@
 package com.jasonqiu.springbootreactdemo.controller;
 
 import com.jasonqiu.springbootreactdemo.entity.Client;
+import com.jasonqiu.springbootreactdemo.security.service.UserInfoService;
 import com.jasonqiu.springbootreactdemo.service.ClientService;
+
+import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -13,18 +18,30 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/clients")
+@RequiredArgsConstructor
 public class ClientController {
 
-    final ClientService clientService;
+    private final ClientService clientService;
+    private final UserInfoService userInfoService;
 
-    public ClientController(ClientService clientService) {
-        this.clientService = clientService;
-    }
-
-    @GetMapping("/name/{firstName}")
+    @GetMapping("/hello")
     @PreAuthorize("hasAuthority('client')")
-    public ResponseEntity<String> printClientInfo(@PathVariable("firstName") String firstName) {
-        return ResponseEntity.ok().body("Hello " + firstName);
+    public ResponseEntity<String> printClientInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = (String) authentication.getPrincipal();
+        String email = userInfoService.getEmailByUsername(username);
+        if (null == email) {
+            return ResponseEntity.ok().body("Hello guest! Welcome to our Client List.");
+        }
+
+        Client client = clientService.getClientByEmail(email);
+
+        if (null == client) {
+            return ResponseEntity.ok().body("Hello guest! Welcome to our Client List.");
+        }
+
+        return ResponseEntity.ok().body("Hello " + client.getFirstName() + " " +
+                client.getLastName() + "! Welcome to our Client List.");
     }
 
     @GetMapping
@@ -43,7 +60,7 @@ public class ClientController {
     @PreAuthorize("hasAuthority('admin')")
     public ResponseEntity<?> createClient(@RequestBody Client client) throws URISyntaxException {
         if (null != clientService.getClientByEmail(client.getEmail())) {
-            return ResponseEntity.badRequest().body("The record with the same name and email already exists");
+            return ResponseEntity.badRequest().body("The email already exists");
         } else {
             clientService.createClient(client);
             // use client.getId() to get the auto-generated key

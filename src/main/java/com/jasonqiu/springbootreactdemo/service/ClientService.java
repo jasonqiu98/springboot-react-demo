@@ -12,7 +12,7 @@ public interface ClientService {
 
     Client getClient(Long id);
 
-    Client getClientByName(String firstName, String lastName);
+    List<Client> getClientByName(String firstName, String lastName);
 
     Client getClientByEmail(String email);
 
