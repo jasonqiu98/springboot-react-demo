@@ -97,3 +97,19 @@ const App = (props) => {
 }
 
 export default App
+
+/**
+ * setupProxy.js
+ * https://github.com/chimurai/http-proxy-middleware
+ */
+// import { createProxyMiddleware } from 'http-proxy-middleware';
+
+// module.exports = (app) => {
+//   app.use(
+//     '/api',
+//     createProxyMiddleware({
+//       target: "http://localhost:8091",
+//       changeOrigin: true,
+//     })
+//   )
+// }
