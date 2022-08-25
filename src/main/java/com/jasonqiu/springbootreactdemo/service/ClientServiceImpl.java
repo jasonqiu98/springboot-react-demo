@@ -3,8 +3,6 @@ package com.jasonqiu.springbootreactdemo.service;
 import com.jasonqiu.springbootreactdemo.entity.Client;
 import com.jasonqiu.springbootreactdemo.repository.ClientRepository;
 import org.springframework.stereotype.Service;
-import org.postgresql.util.PSQLException;
-
 import java.util.List;
 
 @Service
@@ -32,7 +30,7 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public Client getClientByName(String firstName, String lastName) {
+    public List<Client> getClientByName(String firstName, String lastName) {
         return clientRepository.findByName(firstName, lastName);
     }
 

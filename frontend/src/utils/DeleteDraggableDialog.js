@@ -11,6 +11,7 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Paper from '@mui/material/Paper'
 import Draggable from 'react-draggable'
+import useDebounce from '../hooks/useDebounce'
 
 const PaperComponent = (props) => {
   return (
@@ -34,9 +35,13 @@ const DeleteDraggableDialog = ({ onDelete, firstName, lastName, email }) => {
     setOpen(false)
   }
 
-  const handleCloseDelete = () => {
+  const deleteRecord = useDebounce(() => {
     onDelete()
+  }, 1000)
+
+  const handleCloseDelete = () => {
     setOpen(false)
+    deleteRecord()
   }
 
   return (
@@ -46,7 +51,7 @@ const DeleteDraggableDialog = ({ onDelete, firstName, lastName, email }) => {
       </Button>
       <Dialog
         open={open}
-        onClose={handleCloseCancel}
+        // onClose={handleCloseCancel}
         PaperComponent={PaperComponent}
         aria-labelledby="delete-draggable-dialog-title"
       >
