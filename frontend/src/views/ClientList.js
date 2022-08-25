@@ -12,6 +12,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
+import regEmail from '../utils/regEmail'
 
 import { Button, createTheme, Input, MenuItem, TableFooter, TablePagination, TextField, Toolbar, Typography } from '@mui/material'
 import { Box } from '@mui/system'
@@ -168,7 +169,6 @@ const DataTableRowInEditMode = (props) => {
     emailInEditMode, setEmailInEditMode,
     genderInEditMode, setGenderInEditMode,
     onSubmit, onCancel } = props
-  const regEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
   
   return (
     index === indexInEditMode
@@ -231,7 +231,6 @@ const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
   const [lastName, setLastName] = useState("")
   const [email, setEmail] = useState("")
   const [gender, setGender] = useState("")
-  const regEmail = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/
 
   return (
     <StyledTableRow>

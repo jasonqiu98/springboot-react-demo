@@ -72,7 +72,7 @@ const App = (props) => {
               </Button>
             ))}
           </Box>
-          <MyAccount logoutNavigation="/logout" />
+          <MyAccount logoutNavigation="/login" />
         </Toolbar>
       </AppBar>
       <Box component="nav">
