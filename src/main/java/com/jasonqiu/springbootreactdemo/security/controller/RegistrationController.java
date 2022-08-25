@@ -130,6 +130,15 @@ public class RegistrationController {
         }
     }
 
+    /**
+     * for testing of CORS
+     */
+
+    // @GetMapping("/hello")
+    // public ResponseEntity<String> hello() {
+    //     return ResponseEntity.ok().body("hello");
+    // }
+
     private void sendVerificationMail(String applicationUrl, String token) {
         // TODO: replace with frontend url and let frontend access backend
         String url = applicationUrl + "/register/verify?token=" + token;
