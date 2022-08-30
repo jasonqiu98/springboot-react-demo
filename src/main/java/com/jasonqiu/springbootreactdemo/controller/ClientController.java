@@ -1,20 +1,16 @@
 package com.jasonqiu.springbootreactdemo.controller;
 
 import com.jasonqiu.springbootreactdemo.entity.Client;
-import com.jasonqiu.springbootreactdemo.security.service.UserInfoService;
 import com.jasonqiu.springbootreactdemo.service.ClientService;
 
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/clients")

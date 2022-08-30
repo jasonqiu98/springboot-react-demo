@@ -1,6 +1,6 @@
 package com.jasonqiu.springbootreactdemo.security.service;
 
-import java.util.Date;
+import javax.validation.Valid;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Transactional
 @Slf4j
-public class RegistrationServiceImpl implements RegistrationService {
-
+public class ResetPasswordServiceImpl implements ResetPasswordService {
     private final UserInfoRepository userInfoRepository;
     private final PasswordEncoder passwordEncoder;
     private final RedisCache redisCache;
@@ -33,12 +32,12 @@ public class RegistrationServiceImpl implements RegistrationService {
     @Override
     public boolean sendToken(String email) {
         UserInfo user = userInfoRepository.findByEmail(email);
-        if (user != null) {
+        if (user == null) {
             /**
              * the user exists
              * do not send the token
              */
-            log.error("user with email {} already exists", email);
+            log.error("user with email {} does not exist", email);
             return false;
         }
         String countKey = "tokenCount:" + email;
@@ -49,11 +48,10 @@ public class RegistrationServiceImpl implements RegistrationService {
             redisCache.set(countKey, count + 1, 3600);
         } else {
             throw new RuntimeException(
-                "The number of requested tokens has reached the limit (3 tokens per hour)."
-            );
+                    "The number of requested tokens has reached the limit (3 tokens per hour).");
         }
         String token = TokenUtils.generate();
-        redisCache.set("register:" + email, token, 300);  // 5 mins
+        redisCache.set("reset:" + email, token, 300); // 5 mins
         log.info("token {} sent to email {}", token, email);
         /**
          * the logic/implementation of sending an email is omitted here
@@ -62,45 +60,28 @@ public class RegistrationServiceImpl implements RegistrationService {
     }
 
     @Override
-    public UserInfo register(RegistrationModel registrationModel) {
-        String email = registrationModel.getEmail();
-        String token = redisCache.get("register:" + email);
-        if (!registrationModel.getVerificationCode().equals(token)) {
+    public void savePassword(@Valid RegistrationModel resetModel) {
+        String email = resetModel.getEmail();
+        String token = redisCache.get("reset:" + email);
+        if (!resetModel.getVerificationCode().equals(token)) {
             throw new RuntimeException("The verification code is wrong.");
         }
 
-        String password = registrationModel.getPassword();
-        String matchingPassword = registrationModel.getMatchingPassword();
+        String password = resetModel.getPassword();
+        String matchingPassword = resetModel.getMatchingPassword();
         if (!password.equals(matchingPassword)) {
             throw new RuntimeException("The two passwords are not matched.");
         }
 
         UserInfo user = userInfoRepository.findByEmail(email);
-        if (null == user) {
-            user = new UserInfo();
+        if (null != user) {
+            userInfoRepository.changePassword(user.getId(), passwordEncoder.encode(password));; // save password to database
 
-            user.setEmail(email);
-            user.setFirstName(registrationModel.getFirstName());
-            user.setLastName(registrationModel.getLastName());
-
-            /**
-             * required attributes in UserInfo:
-             * (username, password, role, enabled)
-             */
-            user.setUsername(TokenUtils.generate()); // a random username
-            user.setPassword(passwordEncoder.encode(password));
-            user.setRole(2); // client by default, role with most limited authorities
-            user.setEnabled(1); // enabled by default
-
-            user.setCreatedAt(new Date());
-
-            userInfoRepository.save(user); // save to database
-
-            log.info(user.toString() + " saved to database");
+            log.info("The password of user {} is saved", user.toString());
         } else {
-            throw new RuntimeException("The account already exists.");
+            throw new RuntimeException("The account does not exist.");
         }
-
-        return user;
     }
+
+
 }

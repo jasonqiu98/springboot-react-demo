@@ -26,6 +26,7 @@ import { login, selectRoles, selectSignIn, selectUsername, setUsernameRoles } fr
 import Login from './Login'
 import axios from 'axios'
 import { selectJwt, setJwt } from '../redux/jwtSlice'
+import useDebounce from '../hooks/useDebounce'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -403,11 +404,11 @@ const ClientList = () => {
 
   useEffect(() => {
     setLoading(true)
-    if (signIn) {
+    if (signIn && (roles.includes('admin') || (roles.includes('user')))) {
       getData()
     }
     setLoading(false)
-  }, [signIn, getData])
+  }, [signIn, getData, roles])
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
@@ -436,7 +437,7 @@ const ClientList = () => {
     setEditMode(false)
   }
 
-  const submitEdit = (event) => {
+  const submitEdit = useDebounce((event) => {
     let row = {
       id: dataRows[indexInEditMode].id,
       firstName: firstNameInEditMode,
@@ -455,7 +456,7 @@ const ClientList = () => {
     }).then(dataRows[indexInEditMode] = row) // "seeming" update on the frontend
       .catch(err => console.log(err))
     exitEditMode()
-  }
+  }, 100)
 
   const submitAddForm = (firstName, lastName, email, gender) => {
     let newClient = createData(dataLength + 1, firstName, lastName, email, gender)
@@ -466,7 +467,7 @@ const ClientList = () => {
         "token": jwt,
       },
       data: newClient,
-    }).then(res => console.log(res))    // should be code 201
+    }).then(getData())    // code 201, retrieve the data because the number of rows has changed
       .catch(err => console.log(err))
     setAddMode(false)
   }

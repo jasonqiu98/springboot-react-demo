@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .and()
                 .authorizeRequests()
                 // allow anonymous access of the register and login service
-                .antMatchers("/register/**", "/user/login").anonymous()
+                .antMatchers("/register/**", "/user/login", "/reset/**").anonymous()
                 // only admin (developers, managers) can access the API docs
                 .mvcMatchers("/swagger-ui", "/api-docs").hasAuthority("admin")
                 // for all other requests, authentication is required

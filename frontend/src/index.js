@@ -7,8 +7,8 @@ import ClientList from './views/ClientList'
 import NotFound from './views/NotFound'
 import Register from './views/registration/Register'
 import RegistrationSuccess from './views/registration/RegistrationSuccess'
-import SendEmail from './views/resetPassword/SendEmail'
-import SavePassword from './views/resetPassword/SavePassword'
+import ResetPassword from './views/resetPassword/ResetPassword'
+import ResetPasswordSuccess from './views/resetPassword/ResetPasswordSuccess'
 import { Provider } from 'react-redux'
 import store from './redux/store'
 
@@ -19,14 +19,14 @@ root.render(
       <Routes>
         <Route path="/" element={<App />}>
           <Route index element={<Navigate replace to="/clients" />} />
+          <Route path="/login" element={<Navigate replace to="/clients" />} />
           <Route path="/clients" element={<ClientList />} />
           <Route path="/about" element={<About />} />
         </Route>
         <Route path="/register" element={<Register />} />
         <Route path="/registrationSuccess" element={<RegistrationSuccess />} />
-        <Route path="/reset" element={<SendEmail />} />
-        {/* <Route path="/resetPassword">
-      </Route> */}
+        <Route path="/reset" element={<ResetPassword />} />
+        <Route path="/resetSuccess" element={<ResetPasswordSuccess />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

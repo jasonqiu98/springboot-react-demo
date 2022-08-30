@@ -44,7 +44,7 @@ const DeleteDraggableDialog = ({ onDelete, firstName, lastName, email }) => {
   const deleteRecord = useDebounce(() => {
     onDelete()
     dispatch(enable())
-  }, 500)
+  }, 300)
 
   const handleCloseDelete = () => {
     setOpen(false)

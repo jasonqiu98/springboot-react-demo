@@ -16,7 +16,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { validEmail, validPassword } from '../../utils/validation'
+import { RESEND_PERIOD, validEmail, validPassword } from '../../utils/validation'
 import axios from 'axios'
 import { Alert, AlertTitle, Collapse } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
@@ -154,13 +154,13 @@ export default function Register() {
   const handleSend = () => {
     setCodeSent(true)
     setCodeCount(codeCount + 1)
-    handleCountDown(3)  // set a timer with the given seconds
+    handleCountDown(RESEND_PERIOD)  // set a timer with the given seconds
     handleSendEmail(email)
   }
 
   const handleResend = () => {
     setCodeCount(codeCount + 1)
-    handleCountDown(3)  // set a timer with the given seconds
+    handleCountDown(RESEND_PERIOD)  // set a timer with the given seconds
     handleSendEmail(email)
   }
 
