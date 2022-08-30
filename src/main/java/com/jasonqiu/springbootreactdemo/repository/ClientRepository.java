@@ -8,22 +8,33 @@ import java.util.List;
 @Mapper
 public interface ClientRepository {
 
-    @Select("select * from client.client offset #{offset} limit #{limit}")
+    @Select("select * from client.client order by id offset #{offset} limit #{limit}")
     @Results(id = "ClientList", value = {
-            @Result(property = "id", column = "id", id = true),
-            @Result(property = "firstName", column = "first_name"),
-            @Result(property = "lastName", column = "last_name"),
-            @Result(property = "email", column = "email"),
-            @Result(property = "gender", column = "gender")
+        @Result(property = "id", column = "id", id = true),
+        @Result(property = "firstName", column = "first_name"),
+        @Result(property = "lastName", column = "last_name"),
+        @Result(property = "email", column = "email"),
+        @Result(property = "gender", column = "gender")
     })
-    List<Client> findAll(int offset, int limit);
+    List<Client> findAll(Integer offset, Integer limit);
+
+    @Select("select * from client.client order by id")
+    @ResultMap("ClientList")
+    List<Client> findAllClients();
+
+    @Select("select count(id) from client.client")
+    Integer count();
 
     @Select("select * from client.client where id = #{id}")
     @ResultMap("ClientList")
     // @ResultMap(value = {"ClientList"})
     Client findById(Long id);
 
-    @Select("select * from client.client where first_name = #{firstName} and last_name = #{lastName}")
+    @Select({
+        "select * from client.client",
+        "where first_name = #{firstName} and last_name = #{lastName}",
+        "order by id"
+    })
     @ResultMap("ClientList")
     List<Client> findByName(String firstName, String lastName);
 

@@ -8,7 +8,9 @@ public interface ClientService {
 
     List<Client> getClients();
 
-    List<Client> getClients(int offset, int limit);
+    Integer getLength();
+
+    List<Client> getClients(Integer offset, Integer limit);
 
     Client getClient(Long id);
 

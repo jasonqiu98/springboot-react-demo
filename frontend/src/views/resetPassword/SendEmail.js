@@ -13,7 +13,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import regEmail from '../../utils/regEmail'
+import { validEmail } from '../../utils/validation'
 
 const theme = createTheme()
 
@@ -66,7 +66,7 @@ const SendEmail = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={email === "" || !regEmail.test(email)}
+              disabled={!validEmail(email)}
             >
               Send Verification Email
             </Button>

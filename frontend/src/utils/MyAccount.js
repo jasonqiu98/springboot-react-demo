@@ -12,6 +12,8 @@ import MenuItem from '@mui/material/MenuItem'
 import LogoutIcon from '@mui/icons-material/Logout'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { logout, setUsernameRoles } from '../redux/usernameRolesSlice'
 
 const StyledMenu = styled((props) => (
   <Menu
@@ -57,6 +59,7 @@ const StyledMenu = styled((props) => (
 const MyAccount = ({ logoutNavigation }) => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const open = Boolean(anchorEl)
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget)
@@ -68,6 +71,12 @@ const MyAccount = ({ logoutNavigation }) => {
 
   const handleLogout = (logoutNavigation) => {
     setAnchorEl(null)
+    dispatch(setUsernameRoles({
+      username: "",
+      roles: []
+    }))
+    dispatch(logout())
+    // handle authorization headers
     navigate(logoutNavigation, { replace: true })
   }
 

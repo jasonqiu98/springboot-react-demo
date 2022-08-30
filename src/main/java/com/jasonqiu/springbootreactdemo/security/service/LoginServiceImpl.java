@@ -42,7 +42,7 @@ public class LoginServiceImpl implements LoginService {
     private final RedisCache redisCache;
 
     @Override
-    public ResponseEntity<String> login(String username, String password) {
+    public ResponseEntity<UserDetailsPackage> login(String username, String password) {
         // here username is username or email
         Authentication authentication;
         try {
@@ -63,14 +63,16 @@ public class LoginServiceImpl implements LoginService {
 
         String token = jwtUtils.createToken(username);
 
-        redisCache.set("login:" + username,
-                new UserDetailsPackage(username, password, authorities));
+        UserDetailsPackage ret = new UserDetailsPackage(username, password, authorities);
+
+        redisCache.set("login:" + username, ret);
 
         log.info("Login Success with redisKey: {}", "login:" + username);
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, token)
-                .body("Login Success");
+                .header("Access-Control-Expose-Headers", HttpHeaders.AUTHORIZATION)
+                .body(ret);
     }
 
     @Override

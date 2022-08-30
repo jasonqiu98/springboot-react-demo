@@ -12,6 +12,9 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Paper from '@mui/material/Paper'
 import Draggable from 'react-draggable'
 import useDebounce from '../hooks/useDebounce'
+import { useDispatch, useSelector } from 'react-redux'
+import { disable, enable, selectDisabled } from '../redux/disableDeleteSlice'
+import { selectRoles } from '../redux/usernameRolesSlice'
 
 const PaperComponent = (props) => {
   return (
@@ -26,6 +29,9 @@ const PaperComponent = (props) => {
 
 const DeleteDraggableDialog = ({ onDelete, firstName, lastName, email }) => {
   const [open, setOpen] = useState(false)
+  const dispatch = useDispatch()
+  const disableDelete = useSelector(selectDisabled)
+  const roles = useSelector(selectRoles)
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -37,16 +43,24 @@ const DeleteDraggableDialog = ({ onDelete, firstName, lastName, email }) => {
 
   const deleteRecord = useDebounce(() => {
     onDelete()
-  }, 1000)
+    dispatch(enable())
+  }, 500)
 
   const handleCloseDelete = () => {
     setOpen(false)
+    dispatch(disable())  // temporarily disable all delete buttons
     deleteRecord()
   }
 
   return (
     <div>
-      <Button size="small" variant="outlined" color="error" onClick={handleClickOpen}>
+      <Button
+        size="small"
+        variant="outlined"
+        color="error"
+        onClick={handleClickOpen}
+        disabled={!roles.includes("admin") || disableDelete}
+      >
         DELETE
       </Button>
       <Dialog

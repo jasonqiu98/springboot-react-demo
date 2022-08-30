@@ -2,25 +2,30 @@ package com.jasonqiu.springbootreactdemo.service;
 
 import com.jasonqiu.springbootreactdemo.entity.Client;
 import com.jasonqiu.springbootreactdemo.repository.ClientRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
 
-    final ClientRepository clientRepository;
-
-    public ClientServiceImpl(ClientRepository clientRepository) {
-        this.clientRepository = clientRepository;
-    }
+    private final ClientRepository clientRepository;
 
     @Override
     public List<Client> getClients() {
-        return getClients(0, 5);
+        return clientRepository.findAllClients();
     }
 
     @Override
-    public List<Client> getClients(int offset, int limit) {
+    public Integer getLength() {
+        return clientRepository.count();
+    }
+
+    @Override
+    public List<Client> getClients(Integer offset, Integer limit) {
         return clientRepository.findAll(offset, limit);
     }
 

@@ -22,42 +22,78 @@ import java.util.List;
 public class ClientController {
 
     private final ClientService clientService;
-    private final UserInfoService userInfoService;
 
-    @GetMapping("/hello")
-    @PreAuthorize("hasAuthority('client')")
-    public ResponseEntity<String> printClientInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = (String) authentication.getPrincipal();
-        String email = userInfoService.getEmailByUsername(username);
-        if (null == email) {
-            return ResponseEntity.ok().body("Hello guest! Welcome to our Client List.");
+    /**
+     * used for testing
+     */
+
+    // private final UserInfoService userInfoService;
+
+    // @GetMapping("/hello")
+    // @PreAuthorize("hasAuthority('client')")
+    // public ResponseEntity<String> printClientInfo() {
+    // Authentication authentication =
+    // SecurityContextHolder.getContext().getAuthentication();
+    // String username = (String) authentication.getPrincipal();
+    // String email = userInfoService.getEmailByUsername(username);
+    // if (null == email) {
+    // return ResponseEntity.ok().body("Hello guest! Welcome to our Client List.");
+    // }
+
+    // Client client = clientService.getClientByEmail(email);
+
+    // if (null == client) {
+    // return ResponseEntity.ok().body("Hello guest! Welcome to our Client List.");
+    // }
+
+    // return ResponseEntity.ok().body("Hello " + client.getFirstName() + " " +
+    // client.getLastName() + "! Welcome to our Client List.");
+    // }
+
+    @GetMapping("/get/")
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
+    public ResponseEntity<?> getClients() {
+        try {
+            return ResponseEntity.ok().body(clientService.getClients());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.toString());
         }
-
-        Client client = clientService.getClientByEmail(email);
-
-        if (null == client) {
-            return ResponseEntity.ok().body("Hello guest! Welcome to our Client List.");
-        }
-
-        return ResponseEntity.ok().body("Hello " + client.getFirstName() + " " +
-                client.getLastName() + "! Welcome to our Client List.");
     }
 
-    @GetMapping
+    @GetMapping("/get/{offset}/{limit}")
     @PreAuthorize("hasAnyAuthority('admin', 'user')")
-    public List<Client> getClients() {
-        return clientService.getClients();
+    public ResponseEntity<?> getClients(
+            @PathVariable("offset") Integer offset,
+            @PathVariable("limit") Integer limit) {
+        try {
+            return ResponseEntity.ok().body(clientService.getClients(offset, limit));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.toString());
+        }
+    }
+
+    @GetMapping("/length")
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
+    public ResponseEntity<?> getLength() {
+        try {
+            return ResponseEntity.ok().body(clientService.getLength());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.toString());
+        }
     }
 
     @GetMapping("/id/{id}")
     @PreAuthorize("hasAnyAuthority('admin', 'user')")
-    public Client getClient(@PathVariable Long id) {
-        return clientService.getClient(id);
+    public ResponseEntity<?> getClient(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok().body(clientService.getClient(id));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.toString());
+        }
     }
 
     @PostMapping("/create")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
     public ResponseEntity<?> createClient(@RequestBody Client client) throws URISyntaxException {
         if (null != clientService.getClientByEmail(client.getEmail())) {
             return ResponseEntity.badRequest().body("The email already exists");
@@ -70,7 +106,7 @@ public class ClientController {
     }
 
     @PutMapping("/update/{id}")
-    @PreAuthorize("hasAuthority('admin')")
+    @PreAuthorize("hasAnyAuthority('admin', 'user')")
     public ResponseEntity<?> updateClient(@PathVariable Long id, @RequestBody Client client) {
         client.setId(id);
         Client currentClient = clientService.getClient(id);
@@ -79,8 +115,6 @@ public class ClientController {
         } else if (currentClient.equals(client)) {
             // return without any operation
             return ResponseEntity.ok(client);
-        } else if (null != clientService.getClientByEmail(client.getEmail())) {
-            return ResponseEntity.badRequest().body("The record with the same name and email already exists");
         } else {
             clientService.updateClient(id, client);
             // use client.getId() to automatically update the key

@@ -14,6 +14,7 @@ import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { Checkbox, FormControlLabel } from '@mui/material'
+import { validPassword } from '../../utils/validation'
 
 const theme = createTheme()
 
@@ -96,7 +97,7 @@ const SavePassword = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={password === "" || confirmPassword === "" || password !== confirmPassword}
+              disabled={!validPassword(password, confirmPassword)}
             >
               Save Your Password
             </Button>

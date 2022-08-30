@@ -3,7 +3,7 @@
  * Customized table with Custom pagination actions
  */
 
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
@@ -12,7 +12,6 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
-import regEmail from '../utils/regEmail'
 
 import { Button, createTheme, Input, MenuItem, TableFooter, TablePagination, TextField, Toolbar, Typography } from '@mui/material'
 import { Box } from '@mui/system'
@@ -20,6 +19,13 @@ import { Box } from '@mui/system'
 import TablePaginationActions from '../utils/TablePaginationActions'
 import { ThemeProvider } from '@emotion/react'
 import DeleteDraggableDialog from '../utils/DeleteDraggableDialog'
+import { validEmail } from '../utils/validation'
+import { useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { login, selectRoles, selectSignIn, selectUsername, setUsernameRoles } from '../redux/usernameRolesSlice'
+import Login from './Login'
+import axios from 'axios'
+import { selectJwt, setJwt } from '../redux/jwtSlice'
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -49,36 +55,36 @@ const createData = (id, firstName, lastName, email, gender) => {
  * Generated mock data from https://www.mockaroo.com/
  */
 
-const rows = [
-  createData(1, 'Clyde', 'Burris', 'cburris0@mapquest.com', 'M'),
-  createData(2, 'Aline', 'Abela', 'aabela1@php.net', 'F'),
-  createData(3, 'Deina', 'Potte', 'dpotte2@flickr.com', 'F'),
-  createData(4, 'Malia', 'McGreil', 'mmcgreil3@hibu.com', 'F'),
-  createData(5, 'Terence', 'Crampin', 'tcrampin4@tripod.com', 'M'),
-  createData(6, 'Karissa', 'MacElane', 'kmacelane5@guardian.co.uk', 'F'),
-  createData(7, 'Margi', 'Newby', 'mnewby6@harvard.edu', 'O'),
-  createData(8, 'Dom', 'Sinclair', 'dsinclair7@g.co', 'M'),
-  createData(9, 'Gordie', 'Sperling', 'gsperling8@biblegateway.com', 'M'),
-  createData(10, 'Elysha', 'Shillum', 'eshillum9@prweb.com', 'F'),
-  createData(11, 'Benton', 'Slator', 'bslatora@so-net.ne.jp', 'M'),
-  createData(12, 'Clare', 'Rigts', 'crigtsb@elpais.com', 'M'),
-  createData(13, 'Winnie', 'Ramsdell', 'wramsdellc@bloomberg.com', 'F'),
-  createData(14, 'Dionne', 'Lomasna', 'dlomasnad@posterous.com', 'O'),
-  createData(15, 'Adorne', 'Goundrill', 'agoundrille@nih.gov', 'F'),
-  createData(16, 'Cesare', 'MacAnespie', 'cmacanespief@nasa.gov', 'M'),
-  createData(17, 'Leodora', 'Thatcham', 'lthatchamg@prnewswire.com', 'F'),
-  createData(18, 'Ahmad', 'Simmings', 'asimmingsh@is.gd', 'M'),
-  createData(19, 'Cchaddie', 'Twigley', 'ctwigleyi@about.com', 'M'),
-  createData(20, 'Jacquelyn', 'Robbey', 'jrobbeyj@wikispaces.com', 'O'),
-]
+// const rows = [
+//   createData(1, 'Clyde', 'Burris', 'cburris0@mapquest.com', 'M'),
+//   createData(2, 'Aline', 'Abela', 'aabela1@php.net', 'F'),
+//   createData(3, 'Deina', 'Potte', 'dpotte2@flickr.com', 'F'),
+//   createData(4, 'Malia', 'McGreil', 'mmcgreil3@hibu.com', 'F'),
+//   createData(5, 'Terence', 'Crampin', 'tcrampin4@tripod.com', 'M'),
+//   createData(6, 'Karissa', 'MacElane', 'kmacelane5@guardian.co.uk', 'F'),
+//   createData(7, 'Margi', 'Newby', 'mnewby6@harvard.edu', 'O'),
+//   createData(8, 'Dom', 'Sinclair', 'dsinclair7@g.co', 'M'),
+//   createData(9, 'Gordie', 'Sperling', 'gsperling8@biblegateway.com', 'M'),
+//   createData(10, 'Elysha', 'Shillum', 'eshillum9@prweb.com', 'F'),
+//   createData(11, 'Benton', 'Slator', 'bslatora@so-net.ne.jp', 'M'),
+//   createData(12, 'Clare', 'Rigts', 'crigtsb@elpais.com', 'M'),
+//   createData(13, 'Winnie', 'Ramsdell', 'wramsdellc@bloomberg.com', 'F'),
+//   createData(14, 'Dionne', 'Lomasna', 'dlomasnad@posterous.com', 'O'),
+//   createData(15, 'Adorne', 'Goundrill', 'agoundrille@nih.gov', 'F'),
+//   createData(16, 'Cesare', 'MacAnespie', 'cmacanespief@nasa.gov', 'M'),
+//   createData(17, 'Leodora', 'Thatcham', 'lthatchamg@prnewswire.com', 'F'),
+//   createData(18, 'Ahmad', 'Simmings', 'asimmingsh@is.gd', 'M'),
+//   createData(19, 'Cchaddie', 'Twigley', 'ctwigleyi@about.com', 'M'),
+//   createData(20, 'Jacquelyn', 'Robbey', 'jrobbeyj@wikispaces.com', 'O'),
+// ]
 
 /**
  * A gender map that defines the available choices in the system
  */
 const genderMap = {
-  'M': 'Male',
-  'F': 'Female',
-  'O': 'Others',
+  0: 'Female',
+  1: 'Male',
+  2: 'Others',
 }
 
 /**
@@ -147,13 +153,13 @@ const ButtonCellDisabled = () => (
  * @param {Boolean} isEmail whether the input is an email address or not
  * @returns 
  */
-const InputInEditMode = ({ id, value, setValue, isEmail, regEmail }) => {
+const InputInEditMode = ({ id, value, setValue, isEmail }) => {
   return (
     <Input
       id={id}
       inputProps={{ style: { fontSize: 14 } }}
       value={value}
-      error={value === '' || (isEmail && !regEmail.test(value))}  // to avoid null or irregular input
+      error={value === '' || (isEmail && !validEmail(value))}  // to avoid null or irregular input
       onChange={(event) => setValue(event.target.value)}
     />
   )
@@ -169,7 +175,7 @@ const DataTableRowInEditMode = (props) => {
     emailInEditMode, setEmailInEditMode,
     genderInEditMode, setGenderInEditMode,
     onSubmit, onCancel } = props
-  
+
   return (
     index === indexInEditMode
       ? (<StyledTableRow>
@@ -180,7 +186,7 @@ const DataTableRowInEditMode = (props) => {
           <InputInEditMode id="last-name-edit-mode" value={lastNameInEditMode} setValue={setLastNameInEditMode} />
         </StyledTableCell>
         <StyledTableCell>
-          <InputInEditMode id="email-edit-mode" value={emailInEditMode} setValue={setEmailInEditMode} isEmail={true} regEmail={regEmail} />
+          <InputInEditMode id="email-edit-mode" value={emailInEditMode} setValue={setEmailInEditMode} isEmail={true} />
         </StyledTableCell>
         <StyledTableCell>
           <TextField
@@ -206,7 +212,7 @@ const DataTableRowInEditMode = (props) => {
           disabledSubmit={
             firstNameInEditMode === '' ||
             lastNameInEditMode === '' ||
-            emailInEditMode === '' || !regEmail.test(emailInEditMode) ||
+            !validEmail(emailInEditMode) ||
             genderInEditMode === ''
           }
           onSubmit={onSubmit}
@@ -241,7 +247,7 @@ const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
         <InputInEditMode id="last-name-add-mode" value={lastName} setValue={setLastName} />
       </StyledTableCell>
       <StyledTableCell>
-        <InputInEditMode id="email-add-mode" value={email} setValue={setEmail} isEmail={true} regEmail={regEmail}/>
+        <InputInEditMode id="email-add-mode" value={email} setValue={setEmail} isEmail={true} />
       </StyledTableCell>
       <StyledTableCell>
         <TextField
@@ -267,7 +273,7 @@ const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
         disabledSubmit={
           firstName === '' ||
           lastName === '' ||
-          email === '' || !regEmail.test(email) ||
+          !validEmail(email) ||
           gender === ''
         }
         onSubmit={() => onSubmit(firstName, lastName, email, gender)}
@@ -280,13 +286,13 @@ const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
 /**
  * The pagination footer, borrowed from MUI
  */
-const PaginationFooter = ({ editMode, dataRows, rowsPerPage, page, handleChangePage, handleChangeRowsPerPage }) => (
+const PaginationFooter = ({ editMode, dataLength, rowsPerPage, page, handleChangePage, handleChangeRowsPerPage }) => (
   <TableFooter>
     <TableRow>
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
         colSpan={3}
-        count={dataRows.length}
+        count={dataLength}
         rowsPerPage={rowsPerPage}
         page={page}
         SelectProps={{
@@ -310,6 +316,47 @@ const PaginationFooter = ({ editMode, dataRows, rowsPerPage, page, handleChangeP
  * and a table to display the clients' info
  */
 const ClientList = () => {
+  const navigate = useNavigate()
+  const username = useSelector(selectUsername)
+  const roles = useSelector(selectRoles)
+  const signIn = useSelector(selectSignIn)
+  const dispatch = useDispatch()
+  const jwt = useSelector(selectJwt)
+
+  useEffect(() => {
+    if (roles.length === 0 && localStorage.roles) {
+      dispatch(setUsernameRoles({
+        username: localStorage.username,
+        roles: JSON.parse(localStorage.roles),
+      }))
+      localStorage.removeItem("username")
+      localStorage.removeItem("roles")
+
+      if (localStorage.signIn === "true") {
+        dispatch(login())
+      }
+      localStorage.removeItem("signIn")
+
+      dispatch(setJwt(localStorage.jwt))
+      localStorage.removeItem("jwt")
+    } else {
+      if (signIn) {
+        let listener = (event) => {
+          event.preventDefault()
+          localStorage.username = username
+          localStorage.roles = JSON.stringify(roles)
+          localStorage.signIn = signIn.toString()
+          localStorage.jwt = jwt
+        }
+        window.addEventListener('beforeunload', listener)
+        // console.log(roles)
+        return () => {
+          window.removeEventListener('beforeunload', listener)
+        }
+      }
+    }
+  }, [dispatch, navigate, username, roles, signIn, jwt])
+
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(5)
@@ -321,15 +368,50 @@ const ClientList = () => {
   const [emailInEditMode, setEmailInEditMode] = useState("")
   const [genderInEditMode, setGenderInEditMode] = useState("")
   const [dataRows, setDataRows] = useState([])
+  const [dataLength, setDataLength] = useState(0)
+
+  /**
+   * select data on the current page
+   */
+  const getData = useCallback(() => {
+    axios({
+      url: "http://localhost:8091/clients/length",
+      method: "get",
+      headers: {
+        "token": jwt,
+      }
+    }).then(res => setDataLength(res.data))
+      .catch(err => console.log(err))
+    /**
+       * get request for data [Select/Read]
+       * e.g. url: http://localhost:8091/clients/get/0/5
+       */
+    let requestUrl = rowsPerPage > 0
+      ? ("http://localhost:8091/clients/get/" + (page * rowsPerPage) + "/" + rowsPerPage)
+      : "http://localhost:8091/clients/get/"
+    axios({
+      url: requestUrl,
+      method: "get",
+      headers: {
+        "token": jwt,
+      }
+    }).then(res => {
+      setDataRows(res.data)
+    })
+      .catch(err => console.log(err))
+  }, [jwt, page, rowsPerPage])
 
   useEffect(() => {
-    setDataRows(rows)
+    setLoading(true)
+    if (signIn) {
+      getData()
+    }
     setLoading(false)
-  }, [])
+  }, [signIn, getData])
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - dataRows.length) : 0
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - dataLength) : 0
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage)
@@ -340,12 +422,12 @@ const ClientList = () => {
     setPage(0)
   }
 
-  const enterEditMode = (index) => {
-    setIndexInEditMode(index)
-    setFirstNameInEditMode(dataRows[index].firstName)
-    setLastNameInEditMode(dataRows[index].lastName)
-    setEmailInEditMode(dataRows[index].email)
-    setGenderInEditMode(dataRows[index].gender)
+  const enterEditMode = (localIdx) => {
+    setIndexInEditMode(localIdx)
+    setFirstNameInEditMode(dataRows[localIdx].firstName)
+    setLastNameInEditMode(dataRows[localIdx].lastName)
+    setEmailInEditMode(dataRows[localIdx].email)
+    setGenderInEditMode(dataRows[localIdx].gender)
     setEditMode(true)
   }
 
@@ -355,109 +437,144 @@ const ClientList = () => {
   }
 
   const submitEdit = (event) => {
-    let editedDataRow = {
+    let row = {
+      id: dataRows[indexInEditMode].id,
       firstName: firstNameInEditMode,
       lastName: lastNameInEditMode,
       email: emailInEditMode,
       gender: genderInEditMode,
     }
-    dataRows[indexInEditMode] = editedDataRow
     event.preventDefault()
-    setDataRows(dataRows)
+    axios({
+      url: "http://localhost:8091/clients/update/" + row.id,
+      method: "put",
+      headers: {
+        "token": jwt,
+      },
+      data: row
+    }).then(dataRows[indexInEditMode] = row) // "seeming" update on the frontend
+      .catch(err => console.log(err))
     exitEditMode()
   }
 
   const submitAddForm = (firstName, lastName, email, gender) => {
-    setDataRows([...dataRows, createData(dataRows.length + 1, firstName, lastName, email, gender)])
+    let newClient = createData(dataLength + 1, firstName, lastName, email, gender)
+    axios({
+      url: "http://localhost:8091/clients/create",
+      method: "post",
+      headers: {
+        "token": jwt,
+      },
+      data: newClient,
+    }).then(res => console.log(res))    // should be code 201
+      .catch(err => console.log(err))
     setAddMode(false)
   }
 
   const deleteRow = (localIdx, indexToDelete) => {
-    let newDataRows = dataRows.filter((item, index) => index !== indexToDelete)
-    if (localIdx === 0 && indexToDelete === dataRows.length - 1) {
-      if (indexToDelete > 0) {
-        setPage(page - 1)
-      } else {
-        setPage(0)
+    // delete row
+    axios({
+      url: "http://localhost:8091/clients/delete/" + indexToDelete,
+      method: "delete",
+      headers: {
+        "token": jwt,
       }
-    }
-    setDataRows(newDataRows)
+    }).then(() => {
+      if (localIdx === 0 && dataLength - 1 === page * rowsPerPage) {
+        setPage(page > 1 ? page - 1 : 0)
+      }
+      getData()
+    })
+      .catch(err => console.log(err))
   }
 
   return (
     <Box component="main" sx={{ p: 5, width: 0.75 }}>
       <Toolbar />
       {/* Use `disableGutters` to remove the padding of Toolbar */}
-      <Toolbar disableGutters>
-        <Box sx={{ flexGrow: 1 }} />
-        <Button variant="contained" onClick={() => { setAddMode(true) }}>
-          Add Clients
-        </Button>
-      </Toolbar>
-      {!loading && dataRows.length === 0
+      {signIn && !loading
+        && (roles.includes("admin") || roles.includes("user"))
+        && (
+          <Toolbar disableGutters>
+            <Box sx={{ flexGrow: 1 }} />
+            <Button variant="contained" onClick={() => { setAddMode(true) }}>
+              Add Clients
+            </Button>
+          </Toolbar>
+        )}
+      {signIn && !loading
+        && (roles.includes("admin") || roles.includes("user"))
+        && dataLength === 0
         && (<Toolbar disableGutters>
           <Typography>
             The client list is empty.
           </Typography>
         </Toolbar>)}
-      {loading
-        ? (<Typography>
-          Loading...
-        </Typography>)
-        : (<TableContainer component={Paper}>
-          <Table sx={{ minWidth: 700 }} aria-label="customized table">
-            <DataTableHead colNames={["First Name", "Last Name", "Email", "Gender", "Actions"]} />
-            <TableBody>
-              {addMode
-                && <DataTableRowInAddMode
-                  onSubmit={(firstName, lastName, email, gender) => submitAddForm(firstName, lastName, email, gender)}
-                  onCancel={() => { setAddMode(false) }}
-                />}
-              {(rowsPerPage > 0
-                ? dataRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                : dataRows
-              ).map((row, localIdx) => (editMode
-                ? <DataTableRowInEditMode
-                  key={localIdx}
-                  row={row}
-                  index={page * rowsPerPage + localIdx}
-                  indexInEditMode={indexInEditMode}
-                  firstNameInEditMode={firstNameInEditMode}
-                  setFirstNameInEditMode={setFirstNameInEditMode}
-                  lastNameInEditMode={lastNameInEditMode}
-                  setLastNameInEditMode={setLastNameInEditMode}
-                  emailInEditMode={emailInEditMode}
-                  setEmailInEditMode={setEmailInEditMode}
-                  genderInEditMode={genderInEditMode}
-                  setGenderInEditMode={setGenderInEditMode}
-                  onSubmit={submitEdit}
-                  onCancel={exitEditMode}
-                />
-                : <DataTableRowDisplay
-                  key={localIdx}
-                  row={row}
-                  onEdit={() => enterEditMode(page * rowsPerPage + localIdx)}
-                  onDelete={() => deleteRow(localIdx, page * rowsPerPage + localIdx)}
-                />
-              ))}
+      {!signIn
+        ? (<Login />)
+        : loading
+          ? (<Typography>
+            Loading...
+          </Typography>)
+          : (roles.includes("admin") || roles.includes("user"))
+            ? (<TableContainer component={Paper}>
+              <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                <DataTableHead colNames={["First Name", "Last Name", "Email", "Gender", "Actions"]} />
+                <TableBody>
+                  {addMode
+                    && <DataTableRowInAddMode
+                      onSubmit={(firstName, lastName, email, gender) => submitAddForm(firstName, lastName, email, gender)}
+                      onCancel={() => { setAddMode(false) }}
+                    />}
+                  {dataRows.map((row, localIdx) => (editMode
+                    // Don't change localIdx here!
+                    // as they control and ensure local display 
+                    ? <DataTableRowInEditMode
+                      key={localIdx}
+                      row={row}
+                      index={localIdx}
+                      indexInEditMode={indexInEditMode}
+                      firstNameInEditMode={firstNameInEditMode}
+                      setFirstNameInEditMode={setFirstNameInEditMode}
+                      lastNameInEditMode={lastNameInEditMode}
+                      setLastNameInEditMode={setLastNameInEditMode}
+                      emailInEditMode={emailInEditMode}
+                      setEmailInEditMode={setEmailInEditMode}
+                      genderInEditMode={genderInEditMode}
+                      setGenderInEditMode={setGenderInEditMode}
+                      onSubmit={submitEdit}
+                      onCancel={exitEditMode}
+                    />
+                    : <DataTableRowDisplay
+                      key={localIdx}
+                      row={row}
+                      onEdit={() => enterEditMode(localIdx)}
+                      onDelete={() => deleteRow(localIdx, row.id)}
+                    />
+                  ))}
 
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 53 * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-            <PaginationFooter
-              editMode={editMode}
-              dataRows={dataRows}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              handleChangePage={handleChangePage}
-              handleChangeRowsPerPage={handleChangeRowsPerPage}
-            />
-          </Table>
-        </TableContainer>
-        )}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: 53 * emptyRows }}>
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+                <PaginationFooter
+                  editMode={editMode}
+                  dataLength={dataLength}
+                  rowsPerPage={rowsPerPage}
+                  page={page}
+                  handleChangePage={handleChangePage}
+                  handleChangeRowsPerPage={handleChangeRowsPerPage}
+                />
+              </Table>
+            </TableContainer>
+            )
+            : (
+              <Typography>
+                Hello Client! Welcome to our Client List!
+              </Typography>
+            )}
 
     </Box>
   )
