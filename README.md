@@ -4,7 +4,7 @@ Inspired from [the original repo](https://github.com/eugenp/tutorials/tree/maste
 
 ## What's new?
 
-This Java 11 project implemented the following functinalities.
+This Java 11 project provides the following functionalities.
 
 - The backend was implemented with the latest version of **Spring Boot, v2.7.2**. The deprecated APIs in previous versions were not used in this project.
     - Basic CRUD operations were implemented with the help of *PostgreSQL* and *MyBatis*. The system manages the information of clients in a Client List.
