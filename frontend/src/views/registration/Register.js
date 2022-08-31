@@ -16,7 +16,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import { RESEND_PERIOD, validEmail, validPassword } from '../../utils/validation'
+import { BACKEND_URL, RESEND_PERIOD, validEmail, validPassword } from '../../utils/validation'
 import axios from 'axios'
 import { Alert, AlertTitle, Collapse } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
@@ -98,7 +98,8 @@ export default function Register() {
      */
 
     axios({
-      url: "http://localhost:8091/register/signup",
+      url: "/register/signup",
+      baseURL: BACKEND_URL,
       method: "post",
       headers: {
         "Content-Type": "application/json"
@@ -135,7 +136,8 @@ export default function Register() {
      * failure: construct an alert to show the reason
      */
     axios({
-      url: "http://localhost:8091/register/send",
+      url: "/register/send",
+      baseURL: BACKEND_URL,
       method: "post",
       headers: {
         "Content-Type": "application/json"

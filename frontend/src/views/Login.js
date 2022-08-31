@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { login, setUsernameRoles } from '../redux/usernameRolesSlice'
 import { setJwt } from '../redux/jwtSlice'
+import { BACKEND_URL } from '../utils/validation'
 
 /**
  * -------------"client"-------------
@@ -60,7 +61,8 @@ const Login = () => {
   const handleSubmit = (event) => {
     event.preventDefault()
     axios({
-      url: "http://localhost:8091/user/login",
+      url: "/user/login",
+      baseURL: BACKEND_URL,
       method: "post",
       headers: {
         "Content-Type": "application/json"

@@ -5,10 +5,12 @@ spring:
     name: spring-react-demo
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/demo_db
+    url: jdbc:postgresql://db:5432/demo_db
     username: postgres
     password: datagrip02
   redis:
+    host: redis-master
+    port: 6379
     password: foobared
 springdoc:
   api-docs:

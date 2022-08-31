@@ -16,7 +16,7 @@
  import Typography from '@mui/material/Typography'
  import Container from '@mui/material/Container'
  import { createTheme, ThemeProvider } from '@mui/material/styles'
- import { RESEND_PERIOD, validEmail, validPassword } from '../../utils/validation'
+ import { BACKEND_URL, RESEND_PERIOD, validEmail, validPassword } from '../../utils/validation'
  import axios from 'axios'
  import { Alert, AlertTitle, Collapse } from '@mui/material'
  import { useNavigate } from 'react-router-dom'
@@ -95,7 +95,8 @@
       */
  
      axios({
-       url: "http://localhost:8091/reset/save",
+       url: "/reset/save",
+       baseURL: BACKEND_URL,
        method: "post",
        headers: {
          "Content-Type": "application/json"
@@ -132,7 +133,8 @@
       * failure: construct an alert to show the reason
       */
      axios({
-       url: "http://localhost:8091/reset/send",
+       url: "/reset/send",
+       baseURL: BACKEND_URL,
        method: "post",
        headers: {
          "Content-Type": "application/json"

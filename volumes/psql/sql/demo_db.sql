@@ -1,7 +1,4 @@
--- create a database called 'demo_db' in the instance of PostgreSQL
--- create database demo_db;
-
--- and then run the SQL script within demo_db
+-- run the SQL script within demo_db
 
 drop schema if exists client cascade;
 

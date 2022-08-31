@@ -19,7 +19,7 @@ import { Box } from '@mui/system'
 import TablePaginationActions from '../utils/TablePaginationActions'
 import { ThemeProvider } from '@emotion/react'
 import DeleteDraggableDialog from '../utils/DeleteDraggableDialog'
-import { validEmail } from '../utils/validation'
+import { BACKEND_URL, validEmail } from '../utils/validation'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { login, selectRoles, selectSignIn, selectUsername, setUsernameRoles } from '../redux/usernameRolesSlice'
@@ -376,7 +376,8 @@ const ClientList = () => {
    */
   const getData = useCallback(() => {
     axios({
-      url: "http://localhost:8091/clients/length",
+      url: "/clients/length",
+      baseURL: BACKEND_URL,
       method: "get",
       headers: {
         "token": jwt,
@@ -388,10 +389,11 @@ const ClientList = () => {
        * e.g. url: http://localhost:8091/clients/get/0/5
        */
     let requestUrl = rowsPerPage > 0
-      ? ("http://localhost:8091/clients/get/" + (page * rowsPerPage) + "/" + rowsPerPage)
-      : "http://localhost:8091/clients/get/"
+      ? ("/clients/get/" + (page * rowsPerPage) + "/" + rowsPerPage)
+      : "/clients/get/"
     axios({
       url: requestUrl,
+      baseURL: BACKEND_URL,
       method: "get",
       headers: {
         "token": jwt,
@@ -447,7 +449,8 @@ const ClientList = () => {
     }
     event.preventDefault()
     axios({
-      url: "http://localhost:8091/clients/update/" + row.id,
+      url: "/clients/update/" + row.id,
+      baseURL: BACKEND_URL,
       method: "put",
       headers: {
         "token": jwt,
@@ -461,7 +464,8 @@ const ClientList = () => {
   const submitAddForm = (firstName, lastName, email, gender) => {
     let newClient = createData(dataLength + 1, firstName, lastName, email, gender)
     axios({
-      url: "http://localhost:8091/clients/create",
+      url: "/clients/create",
+      baseURL: BACKEND_URL,
       method: "post",
       headers: {
         "token": jwt,
@@ -475,7 +479,8 @@ const ClientList = () => {
   const deleteRow = (localIdx, indexToDelete) => {
     // delete row
     axios({
-      url: "http://localhost:8091/clients/delete/" + indexToDelete,
+      url: "/clients/delete/" + indexToDelete,
+      baseURL: BACKEND_URL,
       method: "delete",
       headers: {
         "token": jwt,

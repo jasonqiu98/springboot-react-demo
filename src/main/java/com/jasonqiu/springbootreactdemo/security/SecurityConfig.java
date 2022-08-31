@@ -92,7 +92,7 @@ public class SecurityConfig {
         /**
          * the url of the frontend domain
          */
-        final String FRONTEND_URL = "http://localhost:3000";
+        final String FRONTEND_URL = "http://localhost:3000/";
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

@@ -11,3 +11,5 @@ export const validEmail = (email) => (
 )
 
 export const RESEND_PERIOD = 60
+
+export const BACKEND_URL = "http://localhost:8091/"

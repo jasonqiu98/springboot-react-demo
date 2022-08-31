@@ -1,0 +1,73 @@
+version: "1.0"
+
+services:
+  demo-frontend:
+    build: ./frontend
+    container_name: react-app
+    ports:
+      - "3000:3000"
+    networks:
+      - frontend
+  
+  demo-backend:
+    build: .
+    container_name: springboot-app
+    ports:
+      - "8091:8091"
+    networks:
+      - frontend
+      - backend
+  
+  db:
+    image: postgres:14.4
+    container_name: postgres2
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=datagrip02
+    volumes:
+      - ./volumes/pgdata/:/var/lib/postgresql/data/
+      - ./volumes/psql/init/init.sh:/docker-entrypoint-initdb.d/init.sh
+      - ./volumes/psql/sql/:/opt/sql/
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+  
+  redis-master:
+    image: redis:7.0
+    container_name: myredis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./volumes/redis-master-config/data:/data:rw
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_PASSWORD=foobared
+    networks:
+      - backend
+  
+  redis-replica:
+    image: redis:7.0
+    container_name: myredis-replica
+    ports:
+      - "6380:6380"
+    volumes:
+      - ./volumes/redis-replica-config/data:/data:rw
+    depends_on:
+      - redis-master
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_REPLICATION_MODE=slave
+      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_MASTER_PASSWORD=foobared
+      - REDIS_PASSWORD=foobared
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
