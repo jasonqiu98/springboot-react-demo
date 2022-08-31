@@ -35,7 +35,7 @@ services:
       - APP_DB_NAME=demo_db
     volumes:
       - ./volumes/pgdata/:/var/lib/postgresql/data/
-      - ./volumes/db:/docker-entrypoint-initdb.d/
+      - ./volumes/db/01-init.sh:/docker-entrypoint-initdb.d/01-init.sh
     ports:
       - "5432:5432"
     networks:
