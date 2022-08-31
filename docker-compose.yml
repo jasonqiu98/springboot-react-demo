@@ -21,14 +21,21 @@ services:
   db:
     image: postgres:14.4
     container_name: postgres2
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
     restart: always
     environment:
-      - POSTGRES_USER=postgres
+      - POSTGRES_USER=root
       - POSTGRES_PASSWORD=datagrip02
+      - APP_DB_USER=docker
+      - APP_DB_PASS=docker
+      - APP_DB_NAME=demo_db
     volumes:
       - ./volumes/pgdata/:/var/lib/postgresql/data/
-      - ./volumes/psql/init/init.sh:/docker-entrypoint-initdb.d/init.sh
-      - ./volumes/psql/sql/:/opt/sql/
+      - ./volumes/db:/docker-entrypoint-initdb.d/
     ports:
       - "5432:5432"
     networks:

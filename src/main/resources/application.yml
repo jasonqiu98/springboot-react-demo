@@ -6,8 +6,8 @@ spring:
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://db:5432/demo_db
-    username: postgres
-    password: datagrip02
+    username: docker
+    password: docker
   redis:
     host: redis-master
     port: 6379
