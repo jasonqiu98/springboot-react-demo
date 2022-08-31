@@ -12,4 +12,12 @@ sh run.sh
 
 If there is no error, search `http://localhost:3000` in your browser, and you can access our Client List. If there is any error, consider solving the dependency issues.
 
+I have provided two default username and password combinations.
+
+- An admin account
+    - username: `admin`, password: `helloworld`
+- A user account
+    - username: `jasonqiu`, password: `helloworld`
+- Any further registered account will be a guest account.
+
 Enjoy!
