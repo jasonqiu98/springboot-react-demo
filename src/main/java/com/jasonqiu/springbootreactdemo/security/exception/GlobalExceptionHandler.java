@@ -18,6 +18,7 @@ import javax.validation.ValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -36,7 +37,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiCallError<String>> handleRuntimeException(
             HttpServletRequest request, RuntimeException ex) {
-        log.error("RuntimeException {}\n", request.getRequestURI(), ex);
+        log.error("RuntimeException {}\n", request.getRequestURI(), ex.getMessage());
 
         return ResponseEntity.badRequest()
                 .body(new ApiCallError<>("Runtime exception", List.of(ex.getMessage())));
@@ -45,10 +46,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiCallError<String>> handleValidationException(
             HttpServletRequest request, ValidationException ex) {
-        log.error("ValidationException {}\n", request.getRequestURI(), ex);
+        log.error("ValidationException {}\n", request.getRequestURI(), ex.getMessage());
 
         return ResponseEntity.badRequest()
                 .body(new ApiCallError<>("Validation exception", List.of(ex.getMessage())));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiCallError<String>> handleBadCredentialsException(
+            HttpServletRequest request, ValidationException ex) {
+        log.error("BadCredentialsException {}\n", request.getRequestURI(), ex.getMessage());
+
+        return ResponseEntity.badRequest()
+                .body(new ApiCallError<>("Bad credentials exception", List.of(ex.getMessage())));
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)

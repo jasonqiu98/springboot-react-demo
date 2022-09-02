@@ -35,8 +35,8 @@ cd ..
 # ---- DOCKER COMPOSE UP ------
 # -----------------------------
 
-# For init of the db
-# https://stackoverflow.com/questions/59715622/docker-compose-and-create-db-in-postgres-on-init
-# docker compose down --volumes
-
 docker compose up
+
+# if you want to run the applications on the backend, uncomment the following line
+
+# docker compose up -d
