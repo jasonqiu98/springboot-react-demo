@@ -36,7 +36,3 @@ cd ..
 # -----------------------------
 
 docker compose up
-
-# if you want to run the applications on the backend, uncomment the following line
-
-# docker compose up -d
