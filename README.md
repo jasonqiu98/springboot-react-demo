@@ -45,7 +45,7 @@ springboot-app   | 2022-09-22 22:33:25.279  INFO 1 --- [           main] c.j.s.S
 ```
 
 If there is any error, consider the following issues.
-- Dependency issues. Check if the Docker daemon process is running.
+- Dependency issues. Check if the Docker daemon process is running. If yes, then check whether certain versions of the docker images defined in `docker-compose.yml`, `Dockerfile` or `frontend/Dockerfile` have been deprecated. Update them to the `latest` version or an available version of your choice, if necessary.
 - It might be the case your local machine already has some containers with the same names. In this case, consider comment the specific lines of `container_name` in the file *docker-compose.yml* where the name has already been taken by your local machine.
 
 ## Login Usernames and Passwords
