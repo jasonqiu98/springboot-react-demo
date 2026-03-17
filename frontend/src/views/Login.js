@@ -1,14 +1,8 @@
-/**
- * From https://mui.com/material-ui/getting-started/templates/
- */
-
 import React, { useState } from 'react'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
 import CssBaseline from '@mui/material/CssBaseline'
 import TextField from '@mui/material/TextField'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Checkbox from '@mui/material/Checkbox'
 import Link from '@mui/material/Link'
 import Grid from '@mui/material/Grid'
 import Box from '@mui/material/Box'
@@ -16,13 +10,15 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
-import axios from 'axios'
-import { Alert, AlertTitle, Collapse } from '@mui/material'
+import { CircularProgress } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { login, setUsernameRoles } from '../redux/usernameRolesSlice'
 import { setJwt } from '../redux/jwtSlice'
 import { BACKEND_URL } from '../utils/validation'
+import axios from 'axios'
+import { AlertComponent } from '../components/common'
+import { PasswordField } from '../components/forms'
 
 /**
  * -------------"client"-------------
@@ -44,7 +40,7 @@ const Login = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-
+  const [loading, setLoading] = useState(false)
   const [alertSeverity, setAlertSeverity] = useState("success")
   const [alertTitle, setAlertTitle] = useState("Error")
   const [alertText, setAlertText] = useState("Account already exists")
@@ -60,6 +56,7 @@ const Login = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
+    setLoading(true)
     axios({
       url: "/user/login",
       baseURL: BACKEND_URL,
@@ -82,12 +79,14 @@ const Login = () => {
       dispatch(setUsernameRoles(usernameRoles))
       constructAlert("success", "Login Successful!", "You have successfully logged in.")
       dispatch(login())
+      setLoading(false)
       // navigate to the client list page
       navigate("/clients", { replace: true })
     })
       .catch(() => {
         setPassword("")
         constructAlert("error", "Login Failed", "Please check your credentials.")
+        setLoading(false)
       })
   }
 
@@ -123,34 +122,21 @@ const Login = () => {
               autoComplete="username"
               autoFocus
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              color={password !== "" ? "primary" : "error"}
-              name="password"
+            <PasswordField
+              id="password"
               label="Password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              type={showPassword ? "text" : "password"}
-              id="password"
-              autoComplete="current-password"
+              showPassword={showPassword}
+              onShowPasswordChange={(e) => setShowPassword(e.target.checked)}
             />
             <Grid item xs={12}>
-              <Collapse in={alertOpen}>
-                <Alert severity={alertSeverity} onClose={() => setAlertOpen(false)}>
-                  <AlertTitle>{alertTitle}</AlertTitle>
-                  {alertText}
-                </Alert>
-              </Collapse>
-            </Grid>
-            <Grid item xs={12}>
-              <FormControlLabel
-                control={<Checkbox
-                  checked={showPassword}
-                  onChange={(e) => setShowPassword(e.target.checked)}
-                  color="primary" />}
-                label="Show Password"
+              <AlertComponent
+                severity={alertSeverity}
+                title={alertTitle}
+                text={alertText}
+                open={alertOpen}
+                onClose={() => setAlertOpen(false)}
               />
             </Grid>
             <Button
@@ -158,9 +144,10 @@ const Login = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
-              disabled={username === "" || password === ""}
+              disabled={username === "" || password === "" || loading}
+              startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
             >
-              Sign In
+              {loading ? "Signing In..." : "Sign In"}
             </Button>
 
             <Grid container>

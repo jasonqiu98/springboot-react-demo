@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   demo-frontend:
     build: ./frontend
@@ -19,7 +17,7 @@ services:
       - backend
   
   db:
-    image: postgres:14.4
+    image: postgres:16
     container_name: postgres2
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "root" ]
@@ -42,7 +40,7 @@ services:
       - backend
   
   redis-master:
-    image: redis:7.0
+    image: redis:8.6
     container_name: myredis
     ports:
       - "6379:6379"
