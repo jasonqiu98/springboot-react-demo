@@ -1,25 +1,16 @@
-/**
- * Modifed from https://mui.com/material-ui/react-table
- * Customized table with Custom pagination actions
- */
-
 import React, { useCallback, useEffect, useState } from 'react'
-import { styled } from '@mui/material/styles'
 import Table from '@mui/material/Table'
 import TableBody from '@mui/material/TableBody'
-import TableCell, { tableCellClasses } from '@mui/material/TableCell'
+import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 
-import { Button, createTheme, Input, MenuItem, TableFooter, TablePagination, TextField, Toolbar, Typography } from '@mui/material'
-import { Box } from '@mui/system'
+import { Button, Toolbar, Typography, CircularProgress, Box } from '@mui/material'
 
 import TablePaginationActions from '../utils/TablePaginationActions'
-import { ThemeProvider } from '@emotion/react'
 import DeleteDraggableDialog from '../utils/DeleteDraggableDialog'
-import { BACKEND_URL, validEmail } from '../utils/validation'
+import { BACKEND_URL } from '../utils/validation'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { login, selectRoles, selectSignIn, selectUsername, setUsernameRoles } from '../redux/usernameRolesSlice'
@@ -27,26 +18,13 @@ import Login from './Login'
 import axios from 'axios'
 import { selectJwt, setJwt } from '../redux/jwtSlice'
 import useDebounce from '../hooks/useDebounce'
-
-const StyledTableCell = styled(TableCell)(({ theme }) => ({
-  [`&.${tableCellClasses.head}`]: {
-    backgroundColor: theme.palette.common.black,
-    color: theme.palette.common.white,
-  },
-  [`&.${tableCellClasses.body}`]: {
-    fontSize: 14,
-  },
-}))
-
-const StyledTableRow = styled(TableRow)(({ theme }) => ({
-  '&:nth-of-type(odd)': {
-    backgroundColor: theme.palette.action.hover,
-  },
-  // hide last border
-  '&:last-child td, &:last-child th': {
-    border: 0,
-  },
-}))
+import {
+  DataTableHead,
+  DataTableRowDisplay,
+  DataTableRowInEditMode,
+  DataTableRowInAddMode,
+  PaginationFooter
+} from '../components/table'
 
 const createData = (id, firstName, lastName, email, gender) => {
   return { id, firstName, lastName, email, gender }
@@ -92,224 +70,6 @@ const genderMap = {
  * gender options from the gender map for the select text field to use
  */
 const genderOptions = Object.entries(genderMap).map((item) => ({ "value": item[0], "label": item[1] }))
-
-/**
- * the table header
- * @param {Array[String]} colNames column names for the table header 
- * @returns 
- */
-const DataTableHead = ({ colNames }) => (
-  <TableHead>
-    <TableRow>
-      {colNames.map((item, index) => <StyledTableCell key={index}>{item}</StyledTableCell>)}
-    </TableRow>
-  </TableHead>
-)
-
-/**
- * A data row in the display mode
- */
-const DataTableRowDisplay = ({ row, onEdit, onDelete }) => (
-  <StyledTableRow>
-    <StyledTableCell component="th" scope="row">{row.firstName}</StyledTableCell>
-    <StyledTableCell>{row.lastName}</StyledTableCell>
-    <StyledTableCell>{row.email}</StyledTableCell>
-    <StyledTableCell>{genderMap[row.gender]}</StyledTableCell>
-    <StyledTableCell sx={{ display: 'flex' }}>
-      <Button size="small" variant="outlined" onClick={onEdit}>EDIT</Button>
-      &emsp;
-      <DeleteDraggableDialog onDelete={onDelete} {...row} />
-    </StyledTableCell>
-  </StyledTableRow>
-)
-
-/**
- * A pair of buttons "submit" and "edit" in the add and edit modes
- */
-const ButtonCellEdit = ({ disabledSubmit, onSubmit, onCancel }) => (
-  <StyledTableCell sx={{ display: 'flex' }}>
-    <Button size="small" variant="outlined" disabled={disabledSubmit} onClick={(event) => onSubmit(event)}>SUBMIT</Button>
-    &emsp;
-    <Button size="small" variant="outlined" onClick={onCancel}>CANCEL</Button>
-  </StyledTableCell>
-)
-
-/**
- * In the edit mode, all other buttons in the display mode are disabled
- * to avoid operations of multiple rows
- */
-const ButtonCellDisabled = () => (
-  <StyledTableCell sx={{ display: 'flex' }}>
-    <Button size="small" variant="outlined" disabled>EDIT</Button>
-    &emsp;
-    <Button size="small" variant="outlined" disabled>DELETE</Button>
-  </StyledTableCell>
-)
-
-/**
- * input field in the edit mode
- * @param {String} id id of the input
- * @param {String} value value of the react hook
- * @param {React.Dispatch<React.SetStateAction<string>>} setValue the set method of the react hook
- * @param {Boolean} isEmail whether the input is an email address or not
- * @returns 
- */
-const InputInEditMode = ({ id, value, setValue, isEmail }) => {
-  return (
-    <Input
-      id={id}
-      inputProps={{ style: { fontSize: 14 } }}
-      value={value}
-      error={value === '' || (isEmail && !validEmail(value))}  // to avoid null or irregular input
-      onChange={(event) => setValue(event.target.value)}
-    />
-  )
-}
-
-/**
- * The form embedded within the table in the edit mode 
- */
-const DataTableRowInEditMode = (props) => {
-  const { row, index, indexInEditMode,
-    firstNameInEditMode, setFirstNameInEditMode,
-    lastNameInEditMode, setLastNameInEditMode,
-    emailInEditMode, setEmailInEditMode,
-    genderInEditMode, setGenderInEditMode,
-    onSubmit, onCancel } = props
-
-  return (
-    index === indexInEditMode
-      ? (<StyledTableRow>
-        <StyledTableCell component="th" scope="row">
-          <InputInEditMode id="first-name-edit-mode" value={firstNameInEditMode} setValue={setFirstNameInEditMode} />
-        </StyledTableCell>
-        <StyledTableCell>
-          <InputInEditMode id="last-name-edit-mode" value={lastNameInEditMode} setValue={setLastNameInEditMode} />
-        </StyledTableCell>
-        <StyledTableCell>
-          <InputInEditMode id="email-edit-mode" value={emailInEditMode} setValue={setEmailInEditMode} isEmail={true} />
-        </StyledTableCell>
-        <StyledTableCell>
-          <TextField
-            id="gender-edit-mode"
-            select
-            value={genderInEditMode}
-            error={genderInEditMode === ''}
-            onChange={(event) => setGenderInEditMode(event.target.value)}
-            variant="standard"
-            size="small"
-          >
-            {genderOptions.map((option) => (
-              <MenuItem key={option.value} value={option.value}>
-                <ThemeProvider theme={createTheme({ typography: { fontSize: 12 } })}>
-                  <Typography>{option.label}</Typography>
-                </ThemeProvider>
-              </MenuItem>
-            ))}
-          </TextField>
-        </StyledTableCell>
-        <ButtonCellEdit
-          // to avoid null input 
-          disabledSubmit={
-            firstNameInEditMode === '' ||
-            lastNameInEditMode === '' ||
-            !validEmail(emailInEditMode) ||
-            genderInEditMode === ''
-          }
-          onSubmit={onSubmit}
-          onCancel={onCancel}
-        />
-      </StyledTableRow>)
-      : (<StyledTableRow>
-        <StyledTableCell component="th" scope="row">{row.firstName}</StyledTableCell>
-        <StyledTableCell>{row.lastName}</StyledTableCell>
-        <StyledTableCell>{row.email}</StyledTableCell>
-        <StyledTableCell>{genderMap[row.gender]}</StyledTableCell>
-        <ButtonCellDisabled />
-      </StyledTableRow>)
-  )
-}
-
-/**
- * The form embedded within the table in the add mode 
- */
-const DataTableRowInAddMode = ({ onSubmit, onCancel }) => {
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [email, setEmail] = useState("")
-  const [gender, setGender] = useState("")
-
-  return (
-    <StyledTableRow>
-      <StyledTableCell component="th" scope="row">
-        <InputInEditMode id="first-name-add-mode" value={firstName} setValue={setFirstName} />
-      </StyledTableCell>
-      <StyledTableCell>
-        <InputInEditMode id="last-name-add-mode" value={lastName} setValue={setLastName} />
-      </StyledTableCell>
-      <StyledTableCell>
-        <InputInEditMode id="email-add-mode" value={email} setValue={setEmail} isEmail={true} />
-      </StyledTableCell>
-      <StyledTableCell>
-        <TextField
-          id="gender-add-mode"
-          select
-          value={gender}
-          error={gender === ''}
-          onChange={(event) => setGender(event.target.value)}
-          variant="standard"
-          size="small"
-        >
-          {genderOptions.map((option) => (
-            <MenuItem key={option.value} value={option.value}>
-              <ThemeProvider theme={createTheme({ typography: { fontSize: 12 } })}>
-                <Typography>{option.label}</Typography>
-              </ThemeProvider>
-            </MenuItem>
-          ))}
-        </TextField>
-      </StyledTableCell>
-      <ButtonCellEdit
-        // to avoid null input
-        disabledSubmit={
-          firstName === '' ||
-          lastName === '' ||
-          !validEmail(email) ||
-          gender === ''
-        }
-        onSubmit={() => onSubmit(firstName, lastName, email, gender)}
-        onCancel={onCancel}
-      />
-    </StyledTableRow>
-  )
-}
-
-/**
- * The pagination footer, borrowed from MUI
- */
-const PaginationFooter = ({ editMode, dataLength, rowsPerPage, page, handleChangePage, handleChangeRowsPerPage }) => (
-  <TableFooter>
-    <TableRow>
-      <TablePagination
-        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-        colSpan={3}
-        count={dataLength}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        SelectProps={{
-          inputProps: {
-            'aria-label': 'rows per page',
-          },
-          native: true,
-        }}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        // page changes are prohibited in the edit mode
-        ActionsComponent={(subProps) => <TablePaginationActions {...subProps} editMode={editMode} />}
-      />
-    </TableRow>
-  </TableFooter>
-)
 
 /**
  * The main component of the client list
@@ -400,16 +160,18 @@ const ClientList = () => {
       }
     }).then(res => {
       setDataRows(res.data)
+      setLoading(false)
     })
-      .catch(err => console.log(err))
+      .catch(err => {
+        console.log(err)
+        setLoading(false)
+      })
   }, [jwt, page, rowsPerPage])
 
   useEffect(() => {
-    setLoading(true)
     if (signIn && (roles.includes('admin') || (roles.includes('user')))) {
       getData()
     }
-    setLoading(false)
   }, [signIn, getData, roles])
 
   // Avoid a layout jump when reaching the last page with empty rows.
@@ -519,11 +281,12 @@ const ClientList = () => {
       {!signIn
         ? (<Login />)
         : loading
-          ? (<Typography>
-            Loading...
-          </Typography>)
+          ? (<Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}>
+            <CircularProgress />
+            <Typography sx={{ ml: 2 }}>Loading...</Typography>
+          </Box>)
           : (roles.includes("admin") || roles.includes("user"))
-            ? (<TableContainer component={Paper}>
+            ? (<TableContainer component={Paper} sx={{ boxShadow: 'none' }}>
               <Table sx={{ minWidth: 700 }} aria-label="customized table">
                 <DataTableHead colNames={["First Name", "Last Name", "Email", "Gender", "Actions"]} />
                 <TableBody>

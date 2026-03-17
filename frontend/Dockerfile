@@ -1,4 +1,4 @@
-FROM node:16.16 AS build
+FROM node:20 AS build
 
 COPY public /home/node/frontend/public
 COPY src /home/node/frontend/src
@@ -9,7 +9,7 @@ WORKDIR /home/node/frontend
 RUN npm i
 RUN npm run build
 
-FROM node:16.16
+FROM node:20
 RUN mkdir build
 COPY --from=build /home/node/frontend/build/ ./build
 RUN npm install -g serve

@@ -1,5 +1,5 @@
 # build the backend with Maven
-FROM maven:3.6 AS build
+FROM maven:3.9 AS build
 COPY src /home/app/src
 COPY pom.xml /home/app
 
@@ -7,7 +7,7 @@ WORKDIR /home/app
 RUN mvn clean package
 
 # run the jar package
-FROM amazoncorretto:11
+FROM amazoncorretto:17
 COPY --from=build /home/app/target/springboot-react-demo-0.0.1-SNAPSHOT.jar /usr/local/lib/springboot-app.jar
 EXPOSE 8091
 
